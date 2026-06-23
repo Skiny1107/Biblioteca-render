@@ -123,10 +123,10 @@ def registro_publico():
             raise ValidationError('El usuario ya existe')
             
         if data == 'ok':
-            # Assign limited permissions to this new user (1=Libros, 2=Autor, 3=Editorial, 7=Materias, 9=Prestamos)
+            # Assign limited permissions to this new user (1=Libros, 2=Autor, 3=Editorial, 7=Materias)
             user = m.get_usuario(usuario, clave)
             if user:
-                for permiso_id in [1, 2, 3, 7, 9]:
+                for permiso_id in [1, 2, 3, 7]:
                     m.actualizar_permisos(user['id'], permiso_id)
                 
                 # Auto log in the user

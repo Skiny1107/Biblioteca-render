@@ -3,7 +3,7 @@ from database import Query
 
 class PrestamosModel(Query):
 
-    def get_prestamos(self, estado=None, fecha_desde=None, fecha_hasta=None):
+    def get_prestamos(self, estado=None, fecha_desde=None, fecha_hasta=None, estudiante=None, libro=None):
         sql = (
             "SELECT e.id AS est_id, e.nombre AS est_nombre, "
             "l.id AS lib_id, l.titulo, "
@@ -25,6 +25,12 @@ class PrestamosModel(Query):
         if fecha_hasta:
             condiciones.append("p.fecha_prestamo <= %s")
             valores.append(fecha_hasta)
+        if estudiante:
+            condiciones.append("p.id_estudiante = %s")
+            valores.append(int(estudiante))
+        if libro:
+            condiciones.append("p.id_libro = %s")
+            valores.append(int(libro))
         if condiciones:
             sql += " AND " + " AND ".join(condiciones)
         sql += " ORDER BY p.id DESC"

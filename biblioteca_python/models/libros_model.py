@@ -3,7 +3,7 @@ from database import Query
 
 class LibrosModel(Query):
 
-    def get_libros(self, id_autor=None, id_editorial=None, id_materia=None, estado=None, q=None):
+    def get_libros(self, id_autor=None, id_editorial=None, id_materia=None, estado=None, stock=None, q=None):
         sql = ("SELECT l.*, m.materia, a.autor, e.editorial "
                "FROM libro l "
                "INNER JOIN materia m ON l.id_materia = m.id "
@@ -25,6 +25,10 @@ class LibrosModel(Query):
         if estado is not None and estado != '':
             condiciones.append("l.estado = %s")
             valores.append(int(estado))
+        if stock == 'disponible':
+            condiciones.append("l.cantidad > 0")
+        elif stock == 'agotado':
+            condiciones.append("l.cantidad = 0")
         if q:
             condiciones.append("(l.titulo ILIKE %s OR a.autor ILIKE %s OR m.materia ILIKE %s OR e.editorial ILIKE %s)")
             term = f"%{q}%"

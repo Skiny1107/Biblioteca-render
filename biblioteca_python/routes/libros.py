@@ -60,11 +60,12 @@ def listar():
     id_editorial = request.args.get('id_editorial') or None
     id_materia = request.args.get('id_materia') or None
     estado = request.args.get('estado') or None
+    stock = request.args.get('stock') or None
     q = request.args.get('q', '')
     
     m = LibrosModel()
     # Realizamos la búsqueda directamente en la base de datos para mayor eficiencia
-    data = m.get_libros(id_autor=id_autor, id_editorial=id_editorial, id_materia=id_materia, estado=estado, q=q)
+    data = m.get_libros(id_autor=id_autor, id_editorial=id_editorial, id_materia=id_materia, estado=estado, stock=stock, q=q)
     
     for row in data:
         row['estadoLabel'] = 'Activo' if row['estado'] == 1 else 'Inactivo'
@@ -278,12 +279,13 @@ def pdf():
     id_editorial = request.args.get('id_editorial')
     id_materia   = request.args.get('id_materia')
     estado       = request.args.get('estado')
+    stock        = request.args.get('stock')
     from models.configuracion_model import ConfiguracionModel
     config_m = ConfiguracionModel()
     datos = config_m.select_configuracion()
     m = LibrosModel()
     registros = m.get_libros(id_autor=id_autor, id_editorial=id_editorial,
-                              id_materia=id_materia, estado=estado)
+                              id_materia=id_materia, estado=estado, stock=stock)
     # Construir etiqueta de filtros activos
     filtros_txt = []
     if id_autor:     filtros_txt.append(f'Autor ID:{id_autor}')
@@ -340,12 +342,13 @@ def excel():
     id_editorial = request.args.get('id_editorial')
     id_materia   = request.args.get('id_materia')
     estado       = request.args.get('estado')
+    stock        = request.args.get('stock')
     from models.configuracion_model import ConfiguracionModel
     config_m = ConfiguracionModel()
     datos = config_m.select_configuracion()
     m = LibrosModel()
     registros = m.get_libros(id_autor=id_autor, id_editorial=id_editorial,
-                              id_materia=id_materia, estado=estado)
+                              id_materia=id_materia, estado=estado, stock=stock)
     filtros_txt = []
     if id_autor:     filtros_txt.append(f'Autor ID:{id_autor}')
     if id_editorial: filtros_txt.append(f'Editorial ID:{id_editorial}')
@@ -402,12 +405,13 @@ def word():
     id_editorial = request.args.get('id_editorial')
     id_materia   = request.args.get('id_materia')
     estado       = request.args.get('estado')
+    stock        = request.args.get('stock')
     from models.configuracion_model import ConfiguracionModel
     config_m = ConfiguracionModel()
     datos = config_m.select_configuracion()
     m = LibrosModel()
     registros = m.get_libros(id_autor=id_autor, id_editorial=id_editorial,
-                              id_materia=id_materia, estado=estado)
+                              id_materia=id_materia, estado=estado, stock=stock)
     filtros_txt = []
     if id_autor:     filtros_txt.append(f'Autor ID:{id_autor}')
     if id_editorial: filtros_txt.append(f'Editorial ID:{id_editorial}')

@@ -52,32 +52,42 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-6 col-lg-4">
-        <a href="{{ url_for('materia.index') }}" class="link-muted">
-            <div class="widget-small info coloured-icon"><i class="icon fa fa-list-alt fa-3x"></i>
+    <div class="col-md-6 col-lg-3">
+        <a href="{{ url_for('prestamos.index') }}" class="link-muted">
+            <div class="widget-small info coloured-icon"><i class="icon fa fa-book fa-3x"></i>
                 <div class="info">
-                    <h4>Materias</h4>
-                    <p><b>{{ data.materias.total }}</b></p>
+                    <h4>Préstamos Activos</h4>
+                    <p><b>{{ data.prestamos_activos.total }}</b></p>
                 </div>
             </div>
         </a>
     </div>
-    <div class="col-md-6 col-lg-4">
-        <a href="{{ url_for('autor.index') }}" class="link-muted">
-            <div class="widget-small warning coloured-icon"><i class="icon fa fa-address-book-o fa-3x"></i>
+    <div class="col-md-6 col-lg-3">
+        <a href="{{ url_for('prestamos.index') }}?estado=2" class="link-muted">
+            <div class="widget-small primary coloured-icon"><i class="icon fa fa-bell fa-3x"></i>
                 <div class="info">
-                    <h4>Autores</h4>
-                    <p><b>{{ data.autor.total }}</b></p>
+                    <h4>Pendientes</h4>
+                    <p><b>{{ data.solicitudes_pendientes.total }}</b></p>
                 </div>
             </div>
         </a>
     </div>
-    <div class="col-md-6 col-lg-4">
-        <a href="{{ url_for('editorial.index') }}" class="link-muted">
-            <div class="widget-small danger coloured-icon"><i class="icon fa fa-tags fa-3x"></i>
+    <div class="col-md-6 col-lg-3">
+        <a href="{{ url_for('prestamos.index') }}" class="link-muted">
+            <div class="widget-small danger coloured-icon"><i class="icon fa fa-exclamation-triangle fa-3x"></i>
                 <div class="info">
-                    <h4>Editoriales</h4>
-                    <p><b>{{ data.editorial.total }}</b></p>
+                    <h4>Vencidos</h4>
+                    <p><b>{{ data.prestamos_vencidos.total }}</b></p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <a href="{{ url_for('libros.index') }}" class="link-muted">
+            <div class="widget-small warning coloured-icon"><i class="icon fa fa-times-circle fa-3x"></i>
+                <div class="info">
+                    <h4>Libros Agotados</h4>
+                    <p><b>{{ data.libros_agotados.total }}</b></p>
                 </div>
             </div>
         </a>

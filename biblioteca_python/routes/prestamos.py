@@ -35,8 +35,10 @@ def listar():
     estado       = request.args.get('estado')
     fecha_desde  = request.args.get('fecha_desde')
     fecha_hasta  = request.args.get('fecha_hasta')
+    estudiante   = request.args.get('estudiante')
+    libro        = request.args.get('libro')
     m = PrestamosModel()
-    data = m.get_prestamos(estado=estado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta)
+    data = m.get_prestamos(estado=estado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta, estudiante=estudiante, libro=libro)
     for row in data:
         if row['estado'] == 1:
             row['estadoLabel'] = 'Prestado'
@@ -409,10 +411,12 @@ def pdf():
     estado      = request.args.get('estado')
     fecha_desde = request.args.get('fecha_desde')
     fecha_hasta = request.args.get('fecha_hasta')
+    estudiante  = request.args.get('estudiante')
+    libro       = request.args.get('libro')
     config_m = ConfiguracionModel()
     datos = config_m.select_configuracion()
     today = date.today().isoformat()
-    prestamo = PrestamosModel().get_prestamos(estado=estado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta)
+    prestamo = PrestamosModel().get_prestamos(estado=estado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta, estudiante=estudiante, libro=libro)
     # Etiqueta de filtros
     filtros_txt = []
     estados_map = {'0': 'Entregados', '1': 'Prestados', '2': 'Pendientes', '3': 'Rechazados'}
@@ -478,8 +482,10 @@ def excel():
     estado      = request.args.get('estado')
     fecha_desde = request.args.get('fecha_desde')
     fecha_hasta = request.args.get('fecha_hasta')
+    estudiante  = request.args.get('estudiante')
+    libro       = request.args.get('libro')
     today = date.today().isoformat()
-    prestamo = PrestamosModel().get_prestamos(estado=estado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta) or []
+    prestamo = PrestamosModel().get_prestamos(estado=estado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta, estudiante=estudiante, libro=libro) or []
     filtros_txt = []
     estados_map = {'0': 'Entregados', '1': 'Prestados', '2': 'Pendientes', '3': 'Rechazados'}
     if estado is not None and estado != '': filtros_txt.append(estados_map.get(str(estado), f'Estado:{estado}'))
@@ -546,10 +552,12 @@ def word():
     estado      = request.args.get('estado')
     fecha_desde = request.args.get('fecha_desde')
     fecha_hasta = request.args.get('fecha_hasta')
+    estudiante  = request.args.get('estudiante')
+    libro       = request.args.get('libro')
     config_m = ConfiguracionModel()
     datos = config_m.select_configuracion()
     today = date.today().isoformat()
-    prestamo = PrestamosModel().get_prestamos(estado=estado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta) or []
+    prestamo = PrestamosModel().get_prestamos(estado=estado, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta, estudiante=estudiante, libro=libro) or []
     filtros_txt = []
     estados_map = {'0': 'Entregados', '1': 'Prestados', '2': 'Pendientes', '3': 'Rechazados'}
     if estado is not None and estado != '': filtros_txt.append(estados_map.get(str(estado), f'Estado:{estado}'))

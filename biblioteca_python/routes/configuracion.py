@@ -98,6 +98,19 @@ def admin():
                 logger.error(f"Error loading dashboard metric '{tabla}': {e}")
                 data[clave] = {'total': 0}
 
+        today = date.today().isoformat()
+        try:
+            data['prestamos_activos'] = m.get_prestamos_activos_count() or {'total': 0}
+            data['prestamos_vencidos'] = m.get_prestamos_vencidos_count(today) or {'total': 0}
+            data['solicitudes_pendientes'] = m.get_solicitudes_pendientes_count() or {'total': 0}
+            data['libros_agotados'] = m.get_libros_agotados_count() or {'total': 0}
+        except Exception as e:
+            logger.error(f"Error loading new metrics: {e}")
+            data['prestamos_activos'] = {'total': 0}
+            data['prestamos_vencidos'] = {'total': 0}
+            data['solicitudes_pendientes'] = {'total': 0}
+            data['libros_agotados'] = {'total': 0}
+
         return render_template('configuracion/home.html', data=data)
     except Exception:
         logger.exception("Error loading admin dashboard")

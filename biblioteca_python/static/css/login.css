@@ -3,20 +3,20 @@
 
 
 :root {
-  --bg-void:        #06080e;
-  --bg-deep:        #0a0e18;
-  --bg-card:        #111827;
+  --bg-void: #f4f6f9;
+  --bg-deep: #ffffff;
+  --bg-card: #ffffff;
   --bg-card-inner:  #0d1420;
 
-  --gold:           #c8a96e;
-  --gold-bright:    #e8c882;
+  --gold: #0056b3;
+  --gold-bright: #007bff;
   --gold-pale:      #f5e4b8;
-  --gold-glow:      rgba(200,169,110,.22);
-  --gold-border:    rgba(200,169,110,.28);
-  --gold-trace:     rgba(200,169,110,.07);
+  --gold-glow: rgba(0, 123, 255, 0.18);
+  --gold-border: rgba(0, 123, 255, 0.22);
+  --gold-trace: rgba(0, 123, 255, 0.07);
 
-  --text-main:      #e8dcc8;
-  --text-soft:      #a89878;
+  --text-main: #212529;
+  --text-soft: #6c757d;
   --text-muted:     #3a3020;
 
   --danger:         #e05555;

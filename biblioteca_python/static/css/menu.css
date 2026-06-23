@@ -2,19 +2,19 @@
 
 /* ── Variables ────────────────────────────────────────────── */
 :root {
-  --bg-void: #07090f;
-  --bg-deep: #0d1117;
-  --bg-card: #151e2d;
-  --bg-hover: #1a2640;
+  --bg-void: #f4f6f9;
+  --bg-deep: #ffffff;
+  --bg-card: #ffffff;
+  --bg-hover: #e9ecef;
 
-  --gold: #c8a96e;
-  --gold-bright: #e8c882;
-  --gold-glow: rgba(200, 169, 110, .18);
-  --gold-border: rgba(200, 169, 110, .22);
-  --gold-trace: rgba(200, 169, 110, .07);
+  --gold: #0056b3;
+  --gold-bright: #007bff;
+  --gold-glow: rgba(0, 123, 255, 0.18);
+  --gold-border: rgba(0, 123, 255, 0.22);
+  --gold-trace: rgba(0, 123, 255, 0.07);
 
-  --text-main: #e8dcc8;
-  --text-soft: #a89878;
+  --text-main: #212529;
+  --text-soft: #6c757d;
   --text-muted: #3a3020;
 
   --radius: 10px;

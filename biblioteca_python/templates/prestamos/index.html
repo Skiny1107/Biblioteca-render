@@ -23,7 +23,7 @@
             <div id="collapseFiltrosPres" class="collapse show">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <label>Estado</label>
                                 <select class="form-control" id="filtroPrestEstado">
@@ -37,21 +37,31 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Fecha Desde</label>
-                                <input type="date" class="form-control" id="filtroPrestDesde">
+                                <label>Estudiante</label>
+                                <select class="form-control" id="filtroPrestEstudiante" style="width: 100%;"></select>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Fecha Hasta</label>
+                                <label>Libro</label>
+                                <select class="form-control" id="filtroPrestLibro" style="width: 100%;"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Desde</label>
+                                <input type="date" class="form-control" id="filtroPrestDesde">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Hasta</label>
                                 <input type="date" class="form-control" id="filtroPrestHasta">
                             </div>
                         </div>
-                        <div class="col-md-3 d-flex align-items-end">
-                            <div class="form-group w-100">
-                                <button class="btn btn-secondary mr-1" onclick="limpiarFiltrosPres()"><i class="fa fa-eraser"></i> Limpiar</button>
-                                <button class="btn btn-primary" onclick="aplicarFiltrosPres()"><i class="fa fa-search"></i> Filtrar</button>
-                            </div>
+                        <div class="col-md-12 text-right mt-2">
+                            <button class="btn btn-secondary mr-1" onclick="limpiarFiltrosPres()"><i class="fa fa-eraser"></i> Limpiar</button>
+                            <button class="btn btn-primary" onclick="aplicarFiltrosPres()"><i class="fa fa-search"></i> Filtrar</button>
                         </div>
                     </div>
                 </div>
@@ -150,6 +160,8 @@ var tablePrestamos = $('#tblPrestamos').DataTable({
             d.estado      = $('#filtroPrestEstado').val();
             d.fecha_desde = $('#filtroPrestDesde').val();
             d.fecha_hasta = $('#filtroPrestHasta').val();
+            d.estudiante  = $('#filtroPrestEstudiante').val();
+            d.libro       = $('#filtroPrestLibro').val();
         }
     },
     columns: [
@@ -181,6 +193,10 @@ var tablePrestamos = $('#tblPrestamos').DataTable({
         }}
     ]
 });
+
+// Initialize Select2 for filters
+$('#filtroPrestEstudiante').select2({ ajax:{ url:'/Estudiantes/buscarEstudiante', data:function(p){ return {es:p.term}; }, processResults:function(d){ return {results:d}; } }, placeholder: 'Buscar estudiante...', allowClear: true });
+$('#filtroPrestLibro').select2({ ajax:{ url:'/Libros/buscarLibro', data:function(p){ return {lb:p.term}; }, processResults:function(d){ return {results:d}; } }, placeholder: 'Buscar libro...', allowClear: true });
 
 function frmPrestamo() {
     $('#frmPrestamo')[0].reset();
@@ -266,6 +282,8 @@ function limpiarFiltrosPres() {
     $('#filtroPrestEstado').val('');
     $('#filtroPrestDesde').val('');
     $('#filtroPrestHasta').val('');
+    $('#filtroPrestEstudiante').val(null).trigger('change');
+    $('#filtroPrestLibro').val(null).trigger('change');
     tablePrestamos.ajax.reload();
 }
 function exportarReporte(tipo) {
@@ -273,9 +291,15 @@ function exportarReporte(tipo) {
     var estado  = $('#filtroPrestEstado').val();
     var desde   = $('#filtroPrestDesde').val();
     var hasta   = $('#filtroPrestHasta').val();
+    var estudiante = $('#filtroPrestEstudiante').val();
+    var libro = $('#filtroPrestLibro').val();
+    
     if (estado) params.append('estado', estado);
     if (desde)  params.append('fecha_desde', desde);
     if (hasta)  params.append('fecha_hasta', hasta);
+    if (estudiante) params.append('estudiante', estudiante);
+    if (libro) params.append('libro', libro);
+    
     var url = '/Prestamos/' + tipo + (params.toString() ? '?' + params.toString() : '');
     if (tipo === 'pdf') { window.open(url, '_blank'); }
     else { window.location.href = url; }

@@ -16,6 +16,22 @@ class ConfiguracionModel(Query):
         sql = f"SELECT COUNT(*) AS total FROM {tabla} WHERE estado = 1"
         return self.select(sql)
 
+    def get_prestamos_activos_count(self):
+        sql = "SELECT COUNT(*) AS total FROM prestamo WHERE estado = 1"
+        return self.select(sql)
+
+    def get_prestamos_vencidos_count(self, today_date):
+        sql = "SELECT COUNT(*) AS total FROM prestamo WHERE estado = 1 AND fecha_devolucion < %s"
+        return self.select(sql, (today_date,))
+
+    def get_solicitudes_pendientes_count(self):
+        sql = "SELECT COUNT(*) AS total FROM prestamo WHERE estado = 2"
+        return self.select(sql)
+
+    def get_libros_agotados_count(self):
+        sql = "SELECT COUNT(*) AS total FROM libro WHERE cantidad = 0 AND estado = 1"
+        return self.select(sql)
+
     def get_reportes(self):
         return self.select_all("SELECT titulo, cantidad FROM libro WHERE estado = 1")
 

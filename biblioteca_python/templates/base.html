@@ -268,7 +268,7 @@
     <script src="{{ url_for('static', filename='js/sweetalert.min.js') }}"></script>
     <script>
         const base_url = '/';
-        const IS_ADMIN = {{ (session.get('id_usuario')|int == 1 or (session.get('permisos') or [])|length > 0) | tojson }};
+        const IS_ADMIN = {{ (session.get('id_usuario')|int == 1 or 'Prestamos' in (session.get('permisos') or [])) | tojson }};
         
         function mostrarAlerta(msg, icono = 'info', options = {}) {
             const config = Object.assign({ title: msg, text: '', icon: icono, timer: 3500, showConfirmButton: false }, options);
@@ -368,23 +368,22 @@
 
         // Verificar libros pendientes/no entregados al cargar
         function cargarNotificaciones() {
-            $.get('/Configuracion/verificar', function(data) {
-                var html = '';
-                var numNotifs = data.length || 0;
-                
-                if (numNotifs > 0) {
-                    html += '<li class="p-2 bg-dark text-white text-center" style="font-size:0.75rem; list-style:none;">VENCIDOS</li>';
-                    data.forEach(function(item) {
-                        html += '<a class="app-notification__item" href="#">' +
-                            '<span class="app-notification__message">' + item.est_nombre + ' - ' + item.titulo + '</span>' +
-                            '<span class="app-notification__meta">' + item.fecha_devolucion + '</span></a>';
-                    });
-                }
-                
-                if (IS_ADMIN) {
+            var html = '';
+            var numNotifs = 0;
+            
+            if (IS_ADMIN) {
+                $.get('/Configuracion/verificar', function(data) {
+                    if (data && data.length > 0) {
+                        html += '<li class="p-2 bg-dark text-white text-center" style="font-size:0.75rem; list-style:none;">VENCIDOS</li>';
+                        data.forEach(function(item) {
+                            html += '<a class="app-notification__item" href="#">' +
+                                '<span class="app-notification__message">' + item.est_nombre + ' - ' + item.titulo + '</span>' +
+                                '<span class="app-notification__meta">' + item.fecha_devolucion + '</span></a>';
+                        });
+                        numNotifs += data.length;
+                    }
                     $.get('/Prestamos/pendientes_notificacion', function(pendientes) {
                         if (pendientes && pendientes.length > 0) {
-                            numNotifs += pendientes.length;
                             let reqHtml = '<li class="p-2 bg-warning text-dark text-center" style="font-size:0.75rem; list-style:none;">NUEVAS SOLICITUDES</li>';
                             pendientes.forEach(function(p) {
                                 reqHtml += '<a class="app-notification__item" href="/Prestamos/">' +
@@ -392,27 +391,29 @@
                                     '<span class="app-notification__meta">Usuario: ' + p.est_nombre + '</span></a>';
                             });
                             html = reqHtml + html;
+                            numNotifs += pendientes.length;
                         }
                         renderNotifs(html, numNotifs);
                     });
-                } else {
-                    $.get('/Prestamos/mis_notificaciones', function(mis_notifs) {
-                        if (mis_notifs && mis_notifs.length > 0) {
-                            numNotifs += mis_notifs.length;
-                            let myHtml = '<li class="p-2 bg-info text-white text-center" style="font-size:0.75rem; list-style:none;">MIS NOTIFICACIONES</li>';
-                            mis_notifs.forEach(function(p) {
-                                var badge = (p.estado === 1) ? '<b style="color:green;">¡Aprobado!</b>' : (p.estado === 3 ? '<b style="color:red;">Rechazado</b>' : '<b style="color:orange;">Pendiente</b>');
-                                myHtml += '<a class="app-notification__item" href="#">' +
-                                    '<span class="app-notification__message">' + badge + ' ' + p.titulo + '</span>' +
-                                    '<span class="app-notification__meta">Préstamo: ' + p.fecha_prestamo + '</span></a>';
-                            });
-                            html = myHtml + html;
-                        }
-                        renderNotifs(html, numNotifs);
-                    });
-                }
-            });
+                });
+            } else {
+                $.get('/Prestamos/mis_notificaciones', function(mis_notifs) {
+                    if (mis_notifs && mis_notifs.length > 0) {
+                        let myHtml = '<li class="p-2 bg-info text-white text-center" style="font-size:0.75rem; list-style:none;">MIS SOLICITUDES</li>';
+                        mis_notifs.forEach(function(p) {
+                            var badge = (p.estado === 1) ? '<b style="color:green;">¡Aprobado!</b>' : (p.estado === 3 ? '<b style="color:red;">Rechazado</b>' : '<b style="color:orange;">Pendiente</b>');
+                            myHtml += '<a class="app-notification__item" href="#">' +
+                                '<span class="app-notification__message">' + badge + ' ' + p.titulo + '</span>' +
+                                '<span class="app-notification__meta">Préstamo: ' + p.fecha_prestamo + '</span></a>';
+                        });
+                        html = myHtml + html;
+                        numNotifs += mis_notifs.length;
+                    }
+                    renderNotifs(html, numNotifs);
+                });
+            }
         }
+
         
         cargarNotificaciones();
         // Recargar notificaciones cada 30 segundos

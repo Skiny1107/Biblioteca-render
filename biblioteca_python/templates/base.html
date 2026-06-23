@@ -11,19 +11,16 @@
     <link href="{{ url_for('static', filename='css/select2.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/space-theme.css') }}?v=2">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-overrides.css') }}?v=20260407c">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/tables-global.css') }}?v=20260408c">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}?v=20260623b">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-overrides.css') }}?v=20260623dual">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tables-global.css') }}?v=20260623b">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     <script>
+        /* Aplica el tema ANTES de que el navegador pinte (evita flash) */
         (function() {
-            const savedTheme = localStorage.getItem('global-theme') || 'dark';
-            if (savedTheme === 'light') {
-                document.documentElement.classList.add('light-mode');
-                document.addEventListener('DOMContentLoaded', () => {
-                    document.body.classList.add('light-mode');
-                });
-            }
+            const saved = localStorage.getItem('biblioteca-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
         })();
     </script>
     <style>
@@ -61,8 +58,9 @@
         <ul class="app-nav">
             <!-- Selector de Tema -->
             <li>
-                <a class="app-nav__item" href="#" id="btn-theme-toggle" onclick="event.preventDefault(); toggleGlobalTheme();" title="Cambiar Tema">
-                    <i class="fa fa-sun-o fa-lg" id="theme-toggle-icon"></i>
+                <a class="app-nav__item" href="#" id="btn-theme-toggle" onclick="event.preventDefault(); toggleGlobalTheme();" title="Cambiar Tema" style="display:flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:6px 12px;border-radius:20px;">
+                    <i class="fa fa-lg" id="theme-toggle-icon"></i>
+                    <span id="theme-toggle-label" style="font-size:.75rem;"></span>
                 </a>
             </li>
             <!-- Notificaciones -->
@@ -415,30 +413,31 @@
     </script>
     <script>
         function toggleGlobalTheme() {
-            const isLight = document.body.classList.toggle('light-mode');
-            document.documentElement.classList.toggle('light-mode', isLight);
-            
-            localStorage.setItem('global-theme', isLight ? 'light' : 'dark');
-            actualizarIconoTema(isLight);
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('biblioteca-theme', next);
+            updateThemeUI(next);
         }
 
-        function actualizarIconoTema(isLight) {
-            const icon = document.getElementById('theme-toggle-icon');
-            if (icon) {
-                if (isLight) {
-                    icon.classList.remove('fa-sun-o');
-                    icon.classList.add('fa-moon-o');
-                } else {
-                    icon.classList.remove('fa-moon-o');
-                    icon.classList.add('fa-sun-o');
-                }
+        function updateThemeUI(theme) {
+            const icon  = document.getElementById('theme-toggle-icon');
+            const label = document.getElementById('theme-toggle-label');
+            if (!icon) return;
+            if (theme === 'light') {
+                icon.className  = 'fa fa-moon-o fa-lg';
+                if (label) label.textContent = 'Oscuro';
+            } else {
+                icon.className  = 'fa fa-sun-o fa-lg';
+                if (label) label.textContent = 'Claro';
             }
         }
 
-        // Ejecutar al cargar para sincronizar el icono
-        document.addEventListener('DOMContentLoaded', () => {
-            const isLight = document.body.classList.contains('light-mode');
-            actualizarIconoTema(isLight);
+        // Sincronizar UI al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+            updateThemeUI(theme);
         });
     </script>
     <!-- Script forzador de color removido: ahora se maneja por CSS puro para mejor rendimiento -->

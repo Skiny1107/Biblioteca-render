@@ -387,7 +387,7 @@
                             let reqHtml = '<li class="p-2 bg-warning text-dark text-center" style="font-size:0.75rem; list-style:none;">NUEVAS SOLICITUDES</li>';
                             pendientes.forEach(function(p) {
                                 reqHtml += '<a class="app-notification__item" href="/Prestamos/">' +
-                                    '<span class="app-notification__message" style="color:#856404;"><b>Pendiente:</b> ' + p.titulo + '</span>' +
+                                    '<span class="app-notification__message" style="color:#856404;"><b>Pendiente:</b> ' + p.titulo + '</span><br>' +
                                     '<span class="app-notification__meta">Usuario: ' + p.est_nombre + '</span></a>';
                             });
                             html = reqHtml + html;

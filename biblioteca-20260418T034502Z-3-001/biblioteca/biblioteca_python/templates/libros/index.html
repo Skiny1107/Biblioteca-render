@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}Libros{% endblock %}
+{% block content %}
+<div class="app-title">
+    <div><h1><i class="fa fa-book"></i> Libros</h1></div>
+    <div class="app-title-actions">
+        <button class="btn btn-primary mb-2" onclick="frmLibro()"><i class="fa fa-plus"></i> Nuevo</button>
+        <a class="btn btn-sm btn-export btn-pdf mb-2" href="/Libros/pdf" target="_blank"><i class="fa fa-file-pdf-o"></i> PDF</a>
+        <a class="btn btn-sm btn-export btn-excel mb-2" href="/Libros/excel"><i class="fa fa-file-excel-o"></i> Excel</a>
+        <a class="btn btn-sm btn-export btn-word mb-2" href="/Libros/word"><i class="fa fa-file-word-o"></i> Word</a>
+    </div>
+</div>
+
+<div class="row"><div class="col-lg-12"><div class="tile"><div class="tile-body">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="tblLibros">
+            <thead class="thead-dark">
+                <tr><th>Id</th><th>Foto</th><th>Título</th><th>Autor</th><th>Editorial</th><th>Materia</th><th>Cantidad</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div></div></div></div>
+
+<!-- Modal libro -->
+<div id="modal_libro" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white" id="titleLibro">Nuevo Libro</h5>
+                <button class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="frmLibro" enctype="multipart/form-data">
+                    <input type="hidden" id="id_libro" name="id">
+                    <input type="hidden" id="foto_actual_libro" name="foto_actual">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group"><label>Título</label>
+                                <input class="form-control" type="text" name="titulo" id="tituloLibro" placeholder="Título del libro"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group"><label>Cantidad</label>
+                                <input class="form-control" type="number" name="cantidad" id="cantidadLibro" placeholder="Cantidad" min="1"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Autor</label>
+                                <select class="form-control select2" name="autor" id="autorLibro"></select></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Editorial</label>
+                                <select class="form-control select2" name="editorial" id="editorialLibro"></select></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Materia</label>
+                                <select class="form-control select2" name="materia" id="materiaLibro"></select></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Núm. Páginas</label>
+                                <input class="form-control" type="number" name="num_pagina" placeholder="Páginas"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Año Edición</label>
+                                <input class="form-control" type="number" name="anio_edicion" placeholder="Año"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Imagen</label>
+                                <input class="form-control" type="file" name="imagen" accept=".png,.jpg,.jpeg"></div>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Descripción</label>
+                        <textarea class="form-control" name="descripcion" rows="2"></textarea></div>
+                    <button class="btn btn-primary" type="button" onclick="registrarLibro(event)">Guardar</button>
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var tableLibros = $('#tblLibros').DataTable({
+    ajax: { url: '/Libros/listar', dataSrc: '' },
+    columns: [
+        { data: 'id' },
+        { data: null, render: function(d) {
+            return '<img class="img-thumbnail" src="/static/img/libros/'+d.imagen+'" width="60">';
+        }},
+        { data: 'titulo' }, { data: 'autor' }, { data: 'editorial' }, { data: 'materia' }, { data: 'cantidad' },
+        { data: null, render: function(d) {
+            return d.estadoLabel==='Activo' ? '<span class="badge badge-success">Activo</span>' : '<span class="badge badge-danger">Inactivo</span>';
+        }},
+        { data: null, render: function(d) {
+            if (d.acciones==='editar,eliminar')
+                return '<button class="btn btn-primary btn-sm" onclick="btnEditarLibro('+d.id+')"><i class="fa fa-pencil-square-o"></i></button> '+
+                       '<button class="btn btn-danger btn-sm" onclick="btnEliminarLibro('+d.id+')"><i class="fa fa-trash-o"></i></button>';
+            return '<button class="btn btn-success btn-sm" onclick="btnReingresarLibro('+d.id+')"><i class="fa fa-reply-all"></i></button>';
+        }}
+    ]
+});
+
+// Cargar select2 para autores, editoriales, materias
+function cargarSelect2() {
+    $('#autorLibro').select2({ dropdownParent: $('#modal_libro'), ajax:{ url:'/Autor/buscarAutor', data:function(p){ return {au:p.term}; }, processResults:function(d){ return {results:d}; } } });
+    $('#editorialLibro').select2({ dropdownParent: $('#modal_libro'), ajax:{ url:'/Editorial/buscarEditorial', data:function(p){ return {ed:p.term}; }, processResults:function(d){ return {results:d}; } } });
+    $('#materiaLibro').select2({ dropdownParent: $('#modal_libro'), ajax:{ url:'/Materia/buscarMateria', data:function(p){ return {ma:p.term}; }, processResults:function(d){ return {results:d}; } } });
+}
+
+function frmLibro() {
+    $('#titleLibro').text('Nuevo Libro'); $('#frmLibro')[0].reset(); $('#id_libro').val('');
+    cargarSelect2(); $('#modal_libro').modal('show');
+}
+function registrarLibro(e) {
+    e.preventDefault();
+    var fd = new FormData($('#frmLibro')[0]);
+    $.ajax({ url:'/Libros/registrar', method:'POST', data:fd, processData:false, contentType:false,
+        success:function(res){ swal(res.msg,'',res.icono); if(res.icono==='success'){ $('#modal_libro').modal('hide'); tableLibros.ajax.reload(); } }
+    });
+}
+function btnEditarLibro(id) {
+    $.get('/Libros/editar/'+id, function(d) {
+        $('#titleLibro').text('Editar Libro'); $('#id_libro').val(d.id); $('#tituloLibro').val(d.titulo);
+        $('#cantidadLibro').val(d.cantidad); $('#foto_actual_libro').val(d.imagen);
+        cargarSelect2(); $('#modal_libro').modal('show');
+    });
+}
+function btnEliminarLibro(id) {
+    swal({title:'¿Dar de baja?',icon:'warning',buttons:true,dangerMode:true}).then(function(ok){
+        if(ok) $.get('/Libros/eliminar/'+id, function(r){ swal(r.msg,'',r.icono); tableLibros.ajax.reload(); });
+    });
+}
+function btnReingresarLibro(id) {
+    $.get('/Libros/reingresar/'+id, function(r){ swal(r.msg,'',r.icono); tableLibros.ajax.reload(); });
+}
+</script>
+{% endblock %}

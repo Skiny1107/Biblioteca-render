@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Estudiantes{% endblock %}
+{% block content %}
+<div class="app-title">
+    <div><h1><i class="fa fa-users"></i> Estudiantes</h1></div>
+    <div class="app-title-actions">
+        {% if session.get('id_usuario') == 1 %}
+        <button class="btn btn-primary mb-2" onclick="frmEstudiante()"><i class="fa fa-plus"></i> Nuevo</button>
+        {% endif %}
+        <button class="btn btn-sm btn-export btn-pdf mb-2" onclick="exportarReporte('pdf')"><i class="fa fa-file-pdf-o"></i> PDF</button>
+        <button class="btn btn-sm btn-export btn-excel mb-2" onclick="exportarReporte('excel')"><i class="fa fa-file-excel-o"></i> Excel</button>
+        <button class="btn btn-sm btn-export btn-word mb-2" onclick="exportarReporte('word')"><i class="fa fa-file-word-o"></i> Word</button>
+    </div>
+</div>
+
+<!-- Filtro de Estado -->
+<div class="row mb-3">
+    <div class="col-lg-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white" data-toggle="collapse" href="#collapseFiltrosEst" style="cursor: pointer;">
+                <h5 class="mb-0"><i class="fa fa-filter"></i> Filtros <i class="fa fa-angle-down float-right"></i></h5>
+            </div>
+            <div id="collapseFiltrosEst" class="collapse show">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Estado</label>
+                                <select class="form-control" id="filtroEstEst">
+                                    <option value="">Todos</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-group">
+                                <button class="btn btn-secondary mr-1" onclick="limpiarFiltrosEst()"><i class="fa fa-eraser"></i> Limpiar</button>
+                                <button class="btn btn-primary" onclick="aplicarFiltrosEst()"><i class="fa fa-search"></i> Filtrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row"><div class="col-lg-12"><div class="tile"><div class="tile-body">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="tblEstudiantes">
+            <thead class="thead-dark"><tr><th>Id</th><th>Código</th><th>DNI</th><th>Nombre</th><th>Carrera</th><th>Teléfono</th><th>Estado</th><th></th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div></div></div></div>
+
+<div id="modal_est" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg"><div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title text-white" id="titleEst">Nuevo Estudiante</h5>
+            <button class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+            <form id="frmEstudiante">
+                <input type="hidden" id="id_est" name="id">
+                <div class="row">
+                    <div class="col-md-4"><div class="form-group"><label>Código</label>
+                        <input class="form-control" type="text" name="codigo" id="codigoEst" placeholder="Código"></div></div>
+                    <div class="col-md-4"><div class="form-group"><label>DNI</label>
+                        <input class="form-control" type="text" name="dni" id="dniEst" placeholder="DNI"></div></div>
+                    <div class="col-md-4"><div class="form-group"><label>Nombre</label>
+                        <input class="form-control" type="text" name="nombre" id="nombreEst" placeholder="Nombre completo"></div></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4"><div class="form-group"><label>Carrera</label>
+                        <input class="form-control" type="text" name="carrera" placeholder="Carrera"></div></div>
+                    <div class="col-md-4"><div class="form-group"><label>Dirección</label>
+                        <input class="form-control" type="text" name="direccion" placeholder="Dirección"></div></div>
+                    <div class="col-md-4"><div class="form-group"><label>Teléfono</label>
+                        <input class="form-control" type="text" name="telefono" placeholder="Teléfono"></div></div>
+                </div>
+                <button class="btn btn-primary" type="button" onclick="registrarEst(event)">Guardar</button>
+                <button class="btn btn-danger" type="button" data-dismiss="modal">Cancelar</button>
+            </form>
+        </div>
+    </div></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$('#codigoEst').attr({required:true, minlength:2, maxlength:20, pattern:'[A-Za-z0-9_-]{2,20}'});
+$('#dniEst').attr({minlength:6, maxlength:20, pattern:'[A-Za-z0-9-]{6,20}'});
+$('#nombreEst').attr({required:true, minlength:3, maxlength:100, pattern:"[A-Za-zÁÉÍÓÚáéíóúÑñ\\s.'-]{3,100}"});
+$('input[name="carrera"]').attr({id:'carreraEst', maxlength:80});
+$('input[name="direccion"]').attr({id:'direccionEst', maxlength:150});
+$('input[name="telefono"]').attr({id:'telefonoEst', minlength:7, maxlength:20, pattern:'[0-9+\\-\\s()]{7,20}'});
+var tableEst = $('#tblEstudiantes').DataTable({
+    ajax: { 
+        url: '/Estudiantes/listar', 
+        dataSrc: '',
+        data: function(d) { d.estado = $('#filtroEstEst').val(); }
+    },
+    columns: [
+        {data:'id'},{data:'codigo'},{data:'dni'},{data:'nombre'},{data:'carrera'},{data:'telefono'},
+        {data:null,render:function(d){return d.estadoLabel==='Activo'?'<span class="badge badge-success">Activo</span>':'<span class="badge badge-danger">Inactivo</span>';}},
+        {data:null,render:function(d){
+            if(d.acciones==='editar,eliminar') return '<button class="btn btn-primary btn-sm" onclick="btnEditarEst('+d.id+')"><i class="fa fa-pencil-square-o"></i></button> <button class="btn btn-danger btn-sm" onclick="btnEliminarEst('+d.id+')"><i class="fa fa-trash-o"></i></button>';
+            if(d.acciones==='reingresar') return '<button class="btn btn-success btn-sm" onclick="btnReingresarEst('+d.id+')"><i class="fa fa-reply-all"></i></button>';
+            return '<span class="text-muted">—</span>';
+        }}
+    ]
+});
+function frmEstudiante(){ $('#titleEst').text('Nuevo Estudiante'); $('#frmEstudiante')[0].reset(); $('#id_est').val(''); $('#modal_est').modal('show'); }
+function registrarEst(e){
+    e.preventDefault();
+    if (!validarFormulario('#frmEstudiante')) return;
+    $.post('/Estudiantes/registrar', $('#frmEstudiante').serialize(), function(res){
+        swal(res.msg,'',res.icono); if(res.icono==='success'){ $('#modal_est').modal('hide'); tableEst.ajax.reload(); }
+    });
+}
+function btnEditarEst(id){
+    $.get('/Estudiantes/editar/'+id, function(d){
+        $('#titleEst').text('Editar Estudiante'); $('#id_est').val(d.id); $('#codigoEst').val(d.codigo); $('#dniEst').val(d.dni); $('#nombreEst').val(d.nombre); $('#carreraEst').val(d.carrera || ''); $('#direccionEst').val(d.direccion || ''); $('#telefonoEst').val(d.telefono || ''); $('#modal_est').modal('show');
+    });
+}
+function btnEliminarEst(id){ swal({title:'¿Dar de baja?',icon:'warning',buttons:true,dangerMode:true}).then(function(ok){ if(ok) $.get('/Estudiantes/eliminar/'+id,function(r){swal(r.msg,'',r.icono);tableEst.ajax.reload();}); }); }
+function btnReingresarEst(id){ $.get('/Estudiantes/reingresar/'+id,function(r){swal(r.msg,'',r.icono);tableEst.ajax.reload();}); }
+function aplicarFiltrosEst() { tableEst.ajax.reload(); }
+function limpiarFiltrosEst() { $('#filtroEstEst').val(''); tableEst.ajax.reload(); }
+function exportarReporte(tipo) {
+    var estado = $('#filtroEstEst').val();
+    var params = new URLSearchParams();
+    if (estado) params.append('estado', estado);
+    var url = '/Estudiantes/' + tipo + (params.toString() ? '?' + params.toString() : '');
+    if (tipo === 'pdf') { window.open(url, '_blank'); }
+    else { window.location.href = url; }
+}
+</script>
+{% endblock %}

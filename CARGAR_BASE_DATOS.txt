@@ -1,0 +1,193 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    📚 CARGA DE BASE DE DATOS - GUÍA COMPLETA
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ ARCHIVOS INCLUIDOS
+═══════════════════════════════════════════════════════════════════════════════
+
+1. biblioteca_completa.sql
+   - BD completa con todas las tablas
+   - 10 libros de muestra
+   - 7 estudiantes
+   - 6 préstamos
+   - 4 usuarios de prueba (admin, bibliotecario, usuario, usuario_inactivo)
+   - Vistas útiles (libros disponibles, préstamos activos)
+   - Procedimientos almacenados (registrar préstamo, registrar devolución)
+   - Índices y optimizaciones
+
+2. setup_database.py
+   - Script Python para cargar la BD automáticamente
+   - Valida la conexión
+   - Verifica datos cargados
+   - Muestra credenciales de prueba
+
+═══════════════════════════════════════════════════════════════════════════════
+📋 OPCIÓN 1: CARGAR CON PYTHON (RECOMENDADO)
+═══════════════════════════════════════════════════════════════════════════════
+
+REQUISITOS:
+- MySQL corriendo (puerto 3306 por defecto)
+- Python instalado con mysql-connector
+- Contraseña vacía para root (o especificar con --password)
+
+PASOS:
+
+1. Asegurar que MySQL está corriendo:
+   • Windows: Buscar "Services" y verificar "MySQL80" activo
+   • Docker: docker-compose up -d
+
+2. Ejecutar script de carga:
+   cd c:\Users\User\mi_entorno\Scripts\biblioteca
+   python setup_database.py
+
+3. Si MySQL está en otro puerto:
+   python setup_database.py --host localhost --user root --password tu_password
+
+4. Si el archivo SQL está en otra ubicación:
+   python setup_database.py --file ruta/al/archivo.sql
+
+═══════════════════════════════════════════════════════════════════════════════
+📋 OPCIÓN 2: CARGAR CON MYSQL CLIENT
+═══════════════════════════════════════════════════════════════════════════════
+
+PASOS:
+
+1. Abrir terminal/CMD
+
+2. Ejecutar comando mysql:
+   mysql -u root < biblioteca_completa.sql
+
+3. Si necesita contraseña:
+   mysql -u root -p < biblioteca_completa.sql
+   (Te pedirá la contraseña)
+
+4. Verificar que se creó:
+   mysql -u root -e "SHOW DATABASES LIKE 'biblioteca%';"
+
+═══════════════════════════════════════════════════════════════════════════════
+📋 OPCIÓN 3: CARGAR CON WORKBENCH O STUDIO
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Abrir MySQL Workbench
+2. Ir a: File → Open SQL Script → Seleccionar biblioteca_completa.sql
+3. Ejecutar: Ctrl+Shift+Enter o botón Execute
+4. Listo!
+
+═══════════════════════════════════════════════════════════════════════════════
+✨ CONTENIDO DE LA BASE DE DATOS
+═══════════════════════════════════════════════════════════════════════════════
+
+TABLAS:
+─────────────────────────────────────────────────────────────────────────────
+
+1. USUARIOS (4 registros)
+   - admin / password (Administrador)
+   - bibliotecario / password (Bibliotecario)
+   - usuario1 / password (Usuario normal)
+   - usuario_inactivo / password (Usuario desactivado)
+
+2. LIBROS (10 registros)
+   - El Aleph - Jorge Luis Borges
+   - Veinte poemas de amor... - Pablo Neruda
+   - Cien años de soledad - García Márquez
+   - Rayuela - Julio Cortázar
+   - La casa de los espíritus - Isabel Allende
+   - Pedro Páramo - Juan Rulfo
+   - Y más...
+
+3. ESTUDIANTES (7 registros)
+   - Juan García
+   - María López
+   - Carlos Rodríguez
+   - Ana Martínez
+   - Pedro Sánchez (inactivo)
+   - Laura Gómez
+   - Diego Torres
+
+4. PRESTAMOS (6 registros)
+   - Préstamos activos
+   - Préstamos devueltos
+   - Ejemplos de retrasos
+
+5. AUTOR (6 registros)
+   - Autores latinoamericanos
+
+6. EDITORIAL (6 registros)
+   - Editoriales principales
+
+7. MATERIA (6 registros)
+   - Categorías de libros
+
+8. CONFIGURACION (1 registro)
+   - Datos de la institución
+
+═══════════════════════════════════════════════════════════════════════════════
+🔍 VERIFICACIÓN POSTERIOR
+═══════════════════════════════════════════════════════════════════════════════
+
+Para verificar que la BD se cargó correctamente:
+
+1. Conectarse a MySQL:
+   mysql -u root
+
+2. Ejecutar comandos:
+   SHOW DATABASES;
+   USE biblioteca_db;
+   SHOW TABLES;
+   SELECT COUNT(*) FROM usuarios;
+   SELECT COUNT(*) FROM libros;
+   SELECT COUNT(*) FROM estudiantes;
+
+3. Listar libros disponibles:
+   SELECT * FROM vw_libros_disponibles;
+
+4. Ver préstamos activos:
+   SELECT * FROM vw_prestamos_activos;
+
+═══════════════════════════════════════════════════════════════════════════════
+🔐 CONTRASEÑAS (IMPORTANTE)
+═══════════════════════════════════════════════════════════════════════════════
+
+Las contraseñas de usuario en la BD están hasheadas con bcrypt.
+
+Usuario/Contraseña para pruebas:
+- admin / password
+- bibliotecario / password
+- usuario1 / password
+
+Todas las contraseñas están hasheadas. Para verificar en la aplicación:
+- La app las valida automáticamente con security.py
+
+═══════════════════════════════════════════════════════════════════════════════
+⚠️  TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+ERROR: "Access denied for user 'root'@'localhost'"
+SOLUCIÓN:
+  1. Verificar que MySQL está corriendo
+  2. Especificar contraseña si es necesario:
+     python setup_database.py --password tu_password
+
+ERROR: "Can't connect to MySQL server"
+SOLUCIÓN:
+  1. Verificar puerto MySQL: netstat -an | findstr 3306
+  2. Reiniciar MySQL: net stop MySQL80 && net start MySQL80
+  3. O usar Docker: docker-compose up -d
+
+ERROR: "Database already exists"
+SOLUCIÓN:
+  1. El script DROP DATABASE si ya existe, no hay problema
+  2. Se sobrescribe la BD anterior
+
+═══════════════════════════════════════════════════════════════════════════════
+🚀 PRÓXIMOS PASOS
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Cargar BD con uno de los métodos anteriores
+2. Iniciar aplicación: python run_app_prod.py
+3. Acceder a: http://localhost:8000
+4. Loguearse con: admin / password
+5. Ejecutar pruebas QA: python run_qa_tests.py
+
+═══════════════════════════════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════════════════════════════

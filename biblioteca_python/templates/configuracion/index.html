@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Configuración{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+{% endblock %}
+{% block content %}
+<div class="app-title"><div><h1><i class="fa fa-cogs"></i> Datos de la Empresa</h1></div></div>
+<div class="row"><div class="col-lg-12"><div class="tile"><div class="tile-body">
+    <form id="frmConfig" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="{{ config.id }}">
+        <div class="row">
+            <div class="col-md-6"><div class="form-group"><label>RUC o RUT</label>
+                <input class="form-control" type="hidden" name="rut" value="{{ config.rut|default('') }}"></div></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6"><div class="form-group"><label>Nombre</label>
+                <input class="form-control" type="text" name="nombre" id="configNombre" value="{{ config.nombre|default('') }}" required minlength="2" maxlength="120"></div></div>
+            <div class="col-md-6"><div class="form-group"><label>Teléfono</label>
+                <input class="form-control" type="text" name="telefono" id="configTelefono" value="{{ config.telefono|default('') }}" required minlength="7" maxlength="20" pattern="[0-9+\-\s()]{7,20}"></div></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6"><div class="form-group"><label>Dirección</label>
+                <input class="form-control" type="text" name="direccion" id="configDireccion" value="{{ config.direccion|default('') }}" required minlength="3" maxlength="150"></div></div>
+            <div class="col-md-6"><div class="form-group"><label>Correo</label>
+                <input class="form-control" type="email" name="correo" id="configCorreo" value="{{ config.correo|default('') }}" required maxlength="120"></div></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6"><div class="form-group"><label>Logo de la Empresa</label>
+                <input class="form-control" type="file" name="imagen" accept="image/*"></div></div>
+        </div>
+        <button class="btn btn-primary" type="button" onclick="actualizarConfig(event)">Actualizar</button>
+    </form>
+</div></div></div></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function actualizarConfig(e) {
+    e.preventDefault();
+    if (!validarFormulario('#frmConfig')) return;
+    var fd = new FormData($('#frmConfig')[0]);
+    $.ajax({ url:'/Configuracion/actualizar', method:'POST', data:fd, processData:false, contentType:false,
+        success:function(res){ swal(res.msg,'',res.icono); }
+    });
+}
+</script>
+{% endblock %}

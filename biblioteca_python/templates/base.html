@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Sistema Biblioteca{% endblock %}</title>
+    <!-- CSS del proyecto original (copiados de Assets/) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/datatables.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/select2.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/space-theme.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-overrides.css') }}?v=20260407c">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tables-global.css') }}?v=20260408c">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('global-theme') || 'dark';
+            if (savedTheme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.body.classList.add('light-mode');
+                });
+            }
+        })();
+    </script>
+    <style>
+        /* Tema Dark Navy & Gold (Solo en modo oscuro) */
+        body:not(.light-mode) .app-header, 
+        body:not(.light-mode) .app-sidebar, 
+        body:not(.light-mode) footer, 
+        body:not(.light-mode) .app-footer, 
+        body:not(.light-mode) .app-notification__title, 
+        body:not(.light-mode) .btn-primary, 
+        body:not(.light-mode) .pace .pace-progress {
+            background-color: #060b14 !important;
+            color: #ffffff !important;
+        }
+        body:not(.light-mode) .app-header__logo, 
+        body:not(.light-mode) .app-menu__item.active, 
+        body:not(.light-mode) .app-menu__item:hover {
+            color: #c5a87e !important;
+        }
+        /* Reemplazo de Verde por Dorado de alto impacto (Solo en modo oscuro) */
+        body:not(.light-mode) .availability-pill:not(.is-empty), 
+        body:not(.light-mode) .badge-success, 
+        body:not(.light-mode) .btn-success {
+            background-color: #c5a87e !important;
+            color: #060b14 !important;
+            border-color: #c5a87e !important;
+            font-weight: 700 !important;
+        }
+        body:not(.light-mode) .text-success {
+            color: #c5a87e !important;
+        }
+
+        /* Widget de Chat Inteligente */
+        .bot-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: sans-serif; }
+        .bot-button { 
+            width: 60px; height: 60px; background: #c5a87e; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; color: #060b14; 
+            cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.3s;
+        }
+        .bot-button:hover { transform: scale(1.1); }
+        .bot-window { 
+            display: none; width: 320px; height: 450px; background: #060b14; border: 1px solid #c5a87e;
+            border-radius: 15px; position: absolute; bottom: 70px; right: 0; flex-direction: column; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .bot-window.active { display: flex; }
+        .bot-header { background: #c5a87e; color: #060b14; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; }
+        .bot-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0b121f; }
+        .msg { padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; max-width: 85%; line-height: 1.4; }
+        .msg.bot { background: #1a2436; color: #fff; align-self: flex-start; border-left: 3px solid #c5a87e; }
+        .msg.user { background: #c5a87e; color: #060b14; align-self: flex-end; font-weight: 500; }
+        .bot-input-area { padding: 10px; border-top: 1px solid #1a2436; display: flex; gap: 5px; background: #060b14; }
+        .bot-input-area input { flex: 1; background: #1a2436; border: 1px solid #c5a87e; color: #fff; border-radius: 20px; padding: 5px 15px; outline: none; }
+        .bot-input-area button { background: #c5a87e; border: none; color: #060b14; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; }
+        .bot-suggestions { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 10px 10px; background: #0b121f; }
+        .suggestion-btn { font-size: 0.75rem; background: transparent; border: 1px solid #c5a87e; color: #c5a87e; border-radius: 10px; padding: 2px 8px; cursor: pointer; }
+        .suggestion-btn:hover { background: #c5a87e; color: #060b14; }
+
+        /* DataTables overrides - reemplaza el setInterval de JS */
+        table tbody td {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            text-shadow: none !important;
+        }
+        .dataTables_info, .dataTables_length label, .dataTables_filter label {
+            color: #c8d8f0 !important;
+            -webkit-text-fill-color: #c8d8f0 !important;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="app sidebar-mini">
+
+    <!-- Navbar -->
+    <header class="app-header">
+        <a class="app-header__logo" href="{{ url_for('configuracion.admin') }}">Biblioteca</a>
+        <a class="app-sidebar__toggle" href="#" data-toggle="sidebar" aria-label="Hide Sidebar"></a>
+        <ul class="app-nav">
+            <!-- Selector de Tema -->
+            <li>
+                <a class="app-nav__item" href="#" id="btn-theme-toggle" onclick="event.preventDefault(); toggleGlobalTheme();" title="Cambiar Tema">
+                    <i class="fa fa-sun-o fa-lg" id="theme-toggle-icon"></i>
+                </a>
+            </li>
+            <!-- Notificaciones -->
+            <li class="dropdown">
+                <a class="app-nav__item" href="#" data-toggle="dropdown" aria-label="Notificaciones" style="position:relative;">
+                    <i class="fa fa-bell-o fa-lg"></i>
+                    <span id="badgeNotificaciones" class="badge badge-danger" style="position:absolute; top:8px; right:5px; font-size: 10px; display:none;">0</span>
+                </a>
+                <ul class="app-notification dropdown-menu dropdown-menu-right">
+                    <li class="app-notification__title">Notificaciones del Sistema</li>
+                    <li class="app-notification__content" id="contenedorNotificaciones"></li>
+                    <li class="app-notification__footer">
+                        <a href="{{ url_for('prestamos.pdf') }}" target="_blank">Generar Reporte.</a>
+                    </li>
+                </ul>
+            </li>
+            <!-- Usuario -->
+            <li class="dropdown">
+                <a class="app-nav__item" href="#" data-toggle="dropdown">
+                    <i class="fa fa-user fa-lg"></i>
+                </a>
+                <ul class="dropdown-menu settings-menu dropdown-menu-right">
+                    <li><a class="dropdown-item" href="#" id="modalPass"><i class="fa fa-user fa-lg"></i> Perfil</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('usuarios.salir') }}"><i class="fa fa-sign-out fa-lg"></i> Salir</a></li>
+                </ul>
+            </li>
+        </ul>
+    </header>
+
+    <!-- Sidebar -->
+    <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+    <aside class="app-sidebar">
+        <div class="app-sidebar__user">
+            <div>
+                <p class="app-sidebar__user-name">{{ session.get('nombre', '') }}</p>
+                <p class="app-sidebar__user-designation">{{ session.get('usuario', '') }}</p>
+            </div>
+        </div>
+        <ul class="app-menu">
+            {% if 'Prestamos' in (session.get('permisos') or []) or session.get('id_usuario')|int == 1 %}
+            <li><a class="app-menu__item" href="{{ url_for('prestamos.index') }}">
+                <i class="app-menu__icon fa fa-hourglass-start"></i>
+                <span class="app-menu__label">Prestamos</span></a></li>
+            {% endif %}
+
+            {% if 'Materias' in (session.get('permisos') or []) or session.get('id_usuario')|int == 1 %}
+            <li><a class="app-menu__item" href="{{ url_for('materia.index') }}">
+                <i class="app-menu__icon fa fa-tags"></i>
+                <span class="app-menu__label">Categorías</span></a></li>
+            {% endif %}
+
+            {% if 'Libros' in session.get('permisos', []) or 'Autor' in session.get('permisos', []) or 'Editorial' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
+            <li class="treeview">
+                <a class="app-menu__item" href="#" data-toggle="treeview">
+                    <i class="app-menu__icon fa fa-list"></i>
+                    <span class="app-menu__label">Libros</span>
+                    <i class="treeview-indicator fa fa-angle-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    {% if 'Autor' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
+                    <li><a class="treeview-item" href="{{ url_for('autor.index') }}"><i class="icon fa fa-address-book"></i> Autor</a></li>
+                    {% endif %}
+                    {% if 'Editorial' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
+                    <li><a class="treeview-item" href="{{ url_for('editorial.index') }}"><i class="icon fa fa-building"></i> Editorial</a></li>
+                    {% endif %}
+                    {% if 'Libros' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
+                    <li><a class="treeview-item" href="{{ url_for('libros.index') }}"><i class="icon fa fa-book"></i> Libros</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endif %}
+
+            {% if 'Estudiantes' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
+            <li><a class="app-menu__item" href="{{ url_for('estudiantes.index') }}">
+                <i class="app-menu__icon fa fa-users"></i>
+                <span class="app-menu__label">Estudiantes</span></a></li>
+            {% endif %}
+
+            {% if 'Usuarios' in session.get('permisos', []) or 'Configuracion' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
+            <li class="treeview">
+                <a class="app-menu__item" href="#" data-toggle="treeview">
+                    <i class="app-menu__icon fa fa-wrench"></i>
+                    <span class="app-menu__label">Administración</span>
+                    <i class="treeview-indicator fa fa-angle-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    {% if 'Usuarios' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
+                    <li><a class="treeview-item" href="{{ url_for('usuarios.index') }}"><i class="icon fa fa-user-o"></i> Usuarios</a></li>
+                    {% endif %}
+                    {% if 'Configuracion' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
+                    <li><a class="treeview-item" href="{{ url_for('configuracion.index') }}"><i class="icon fa fa-cogs"></i> Configuración</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endif %}
+
+            {% if 'Reportes' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
+            <li class="treeview">
+                <a class="app-menu__item" href="#" data-toggle="treeview">
+                    <i class="app-menu__icon fa fa-file-text"></i>
+                    <span class="app-menu__label">Reportes</span>
+                    <i class="treeview-indicator fa fa-angle-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    <li><a class="treeview-item" href="{{ url_for('prestamos.pdf') }}" target="_blank">
+                        <i class="icon fa fa-file-pdf-o"></i> Libros Prestados</a></li>
+                </ul>
+            </li>
+            {% endif %}
+            <li style="margin-top: 1rem; border-top:1px solid rgba(255,255,255,.15); padding-top:.8rem;">
+                <a class="app-menu__item" href="{{ url_for('usuarios.salir') }}" style="color:#f8d7da !important; font-weight:700;" title="Cerrar Sesión">
+                    <i class="app-menu__icon fa fa-sign-out"></i>
+                    <span class="app-menu__label">Cerrar Sesión</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="app-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer / Modals -->
+    <!-- Modal cambiar contraseña -->
+    <div class="modal fade" id="modalCambiarPass" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form class="modal-content" id="frmCambiarPass">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cambiar Contraseña</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span></span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Contraseña Actual</label>
+                        <input type="password" class="form-control" id="clave_actual" name="clave_actual">
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="clave_nueva" name="clave_nueva">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="clave_confirmar" name="clave_confirmar">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="cambiarPass(event)">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pace.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/select2.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sweetalert.min.js') }}"></script>
+    <script>
+        const base_url = '/';
+        const IS_ADMIN = {{ (session.get('id_usuario')|int == 1 or (session.get('permisos') or [])|length > 0) | tojson }};
+        
+        function mostrarAlerta(msg, icono = 'info', options = {}) {
+            const config = Object.assign({ title: msg, text: '', icon: icono, timer: 3500, showConfirmButton: false }, options);
+            if (window.swal) return window.swal(config.title, config.text, config.icon);
+            alert(msg);
+        }
+        window.alertas = mostrarAlerta;
+
+        function extraerMensajeError(xhr) {
+            if (!xhr) {
+                return { msg: 'Ocurrio un error inesperado', icono: 'error' };
+            }
+            const data = xhr.responseJSON || {};
+            const msg = data.msg || data.error || data.message || (xhr.status === 0 ? 'No se pudo conectar con el servidor' : 'Ocurrio un error al procesar la solicitud');
+            let icono = data.icono || 'error';
+            if (xhr.status === 400 || xhr.status === 401 || xhr.status === 403 || xhr.status === 404 || xhr.status === 409 || xhr.status === 422 || xhr.status === 429) {
+                icono = data.icono || 'warning';
+            }
+            return { msg, icono };
+        }
+
+        function manejarErrorAjax(xhr) {
+            const err = extraerMensajeError(xhr);
+            if (xhr && xhr.status === 401) {
+                mostrarAlerta(err.msg, err.icono);
+                setTimeout(function() {
+                    window.location.href = '/';
+                }, 1200);
+                return;
+            }
+            // Evitar alertas intrusivas si el servidor no responde (status 0) 
+            // durante las comprobaciones en segundo plano.
+            if (xhr && xhr.status !== 0) {
+                mostrarAlerta(err.msg, err.icono);
+            }
+        }
+
+        function validarFormulario(formSelector) {
+            var form = typeof formSelector === 'string' ? document.querySelector(formSelector) : formSelector;
+            if (!form) return true;
+            if (!form.checkValidity()) {
+                var invalidField = form.querySelector(':invalid');
+                if (invalidField) {
+                    invalidField.focus();
+                    invalidField.reportValidity();
+                    var label = '';
+                    var formGroup = invalidField.closest('.form-group');
+                    if (formGroup) {
+                        var labelEl = formGroup.querySelector('label');
+                        if (labelEl) {
+                            label = labelEl.textContent.trim().replace(/\s+/g, ' ');
+                        }
+                    }
+                    var validationMessage = invalidField.validationMessage || 'Revisa este campo';
+                    mostrarAlerta(label ? (label + ': ' + validationMessage) : validationMessage, 'warning');
+                } else {
+                    form.reportValidity();
+                    mostrarAlerta('Revisa los campos del formulario', 'warning');
+                }
+                return false;
+            }
+            return true;
+        }
+
+        function cargarOpcionSelect2(selector, value, text) {
+            if (!value || !text) return;
+            var $select = $(selector);
+            if ($select.find('option[value="' + value + '"]').length) {
+                $select.val(value).trigger('change');
+                return;
+            }
+            var option = new Option(text, value, true, true);
+            $select.append(option).trigger('change');
+        }
+
+        $.ajaxSetup({
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        $(document).ajaxError(function(event, xhr) {
+            manejarErrorAjax(xhr);
+        });
+
+        document.addEventListener('invalid', function(event) {
+            const field = event.target;
+            if (!field || !field.form) return;
+            field.classList.add('is-invalid');
+        }, true);
+
+        document.addEventListener('input', function(event) {
+            const field = event.target;
+            if (!field || !field.classList) return;
+            field.classList.remove('is-invalid');
+        }, true);
+
+        // Verificar libros pendientes/no entregados al cargar
+        function cargarNotificaciones() {
+            $.get('/Configuracion/verificar', function(data) {
+                var html = '';
+                var numNotifs = data.length || 0;
+                
+                if (numNotifs > 0) {
+                    html += '<li class="p-2 bg-dark text-white text-center" style="font-size:0.75rem; list-style:none;">VENCIDOS</li>';
+                    data.forEach(function(item) {
+                        html += '<a class="app-notification__item" href="#">' +
+                            '<span class="app-notification__message">' + item.est_nombre + ' - ' + item.titulo + '</span>' +
+                            '<span class="app-notification__meta">' + item.fecha_devolucion + '</span></a>';
+                    });
+                }
+                
+                if (IS_ADMIN) {
+                    $.get('/Prestamos/pendientes_notificacion', function(pendientes) {
+                        if (pendientes && pendientes.length > 0) {
+                            numNotifs += pendientes.length;
+                            let reqHtml = '<li class="p-2 bg-warning text-dark text-center" style="font-size:0.75rem; list-style:none;">NUEVAS SOLICITUDES</li>';
+                            pendientes.forEach(function(p) {
+                                reqHtml += '<a class="app-notification__item" href="/Prestamos/">' +
+                                    '<span class="app-notification__message" style="color:#856404;"><b>Pendiente:</b> ' + p.titulo + '</span>' +
+                                    '<span class="app-notification__meta">Usuario: ' + p.est_nombre + '</span></a>';
+                            });
+                            html = reqHtml + html;
+                        }
+                        renderNotifs(html, numNotifs);
+                    });
+                } else {
+                    $.get('/Prestamos/mis_notificaciones', function(mis_notifs) {
+                        if (mis_notifs && mis_notifs.length > 0) {
+                            numNotifs += mis_notifs.length;
+                            let myHtml = '<li class="p-2 bg-info text-white text-center" style="font-size:0.75rem; list-style:none;">MIS NOTIFICACIONES</li>';
+                            mis_notifs.forEach(function(p) {
+                                var badge = (p.estado === 1) ? '<b style="color:green;">¡Aprobado!</b>' : (p.estado === 3 ? '<b style="color:red;">Rechazado</b>' : '<b style="color:orange;">Pendiente</b>');
+                                myHtml += '<a class="app-notification__item" href="#">' +
+                                    '<span class="app-notification__message">' + badge + ' ' + p.titulo + '</span>' +
+                                    '<span class="app-notification__meta">Préstamo: ' + p.fecha_prestamo + '</span></a>';
+                            });
+                            html = myHtml + html;
+                        }
+                        renderNotifs(html, numNotifs);
+                    });
+                }
+            });
+        }
+        
+        cargarNotificaciones();
+        // Recargar notificaciones cada 30 segundos
+        setInterval(cargarNotificaciones, 30000);
+        
+        // Abrir modal perfil
+        $('#modalPass').click(function() {
+            $('#modalCambiarPass').modal('show');
+        });
+        function cambiarPass(e) {
+            e.preventDefault();
+            const actual = $('#clave_actual').val();
+            const nueva = $('#clave_nueva').val();
+            const confirmar = $('#clave_confirmar').val();
+
+            if (!actual || !nueva || !confirmar) {
+                mostrarAlerta('Todos los campos son obligatorios', 'warning');
+                return;
+            }
+            if (nueva.length < 8) {
+                mostrarAlerta('La nueva contraseña debe tener al menos 8 caracteres', 'warning');
+                return;
+            }
+            if (nueva !== confirmar) {
+                mostrarAlerta('Las contraseñas no coinciden', 'warning');
+                return;
+            }
+            $.post('/Usuarios/cambiarPas', {
+                clave_actual: $('#clave_actual').val(),
+                clave_nueva: $('#clave_nueva').val(),
+                confirmar: $('#clave_confirmar').val()
+            }, function(res) {
+                mostrarAlerta(res.msg, res.icono);
+                if (res.icono === 'success') {
+                    $('#clave_actual, #clave_nueva, #clave_confirmar').val('');
+                    $('#modalCambiarPass').modal('hide');
+                }
+            }).fail(function(xhr) {
+                manejarErrorAjax(xhr);
+            });
+        }
+    </script>
+    <script>
+        function toggleGlobalTheme() {
+            const isLight = document.body.classList.toggle('light-mode');
+            document.documentElement.classList.toggle('light-mode', isLight);
+            
+            localStorage.setItem('global-theme', isLight ? 'light' : 'dark');
+            actualizarIconoTema(isLight);
+        }
+
+        function actualizarIconoTema(isLight) {
+            const icon = document.getElementById('theme-toggle-icon');
+            if (icon) {
+                if (isLight) {
+                    icon.classList.remove('fa-sun-o');
+                    icon.classList.add('fa-moon-o');
+                } else {
+                    icon.classList.remove('fa-moon-o');
+                    icon.classList.add('fa-sun-o');
+                }
+            }
+        }
+
+        // Ejecutar al cargar para sincronizar el icono
+        document.addEventListener('DOMContentLoaded', () => {
+            const isLight = document.body.classList.contains('light-mode');
+            actualizarIconoTema(isLight);
+        });
+    </script>
+    <!-- Script forzador de color removido: ahora se maneja por CSS puro para mejor rendimiento -->
+    <script>
+        function renderNotifs(htmlResult, total) {
+            if (total > 0) {
+                $('#badgeNotificaciones').text(total).show();
+            } else {
+                $('#badgeNotificaciones').hide();
+                if (!htmlResult) htmlResult = '<li class="p-2 text-center" style="list-style:none;">Sin notificaciones</li>';
+            }
+            $('#contenedorNotificaciones').html(htmlResult);
+        }
+    </script>
+
+    <!-- Widget HTML -->
+    <div class="bot-container">
+        <div class="bot-window" id="botWindow">
+            <div class="bot-header">
+                <span><i class="fa fa-android"></i> Tech - Asistente</span>
+                <i class="fa fa-times" style="cursor:pointer" onclick="toggleBot()"></i>
+            </div>
+            <div class="bot-messages" id="botMessages">
+                <div class="msg bot">¡Hola! Soy Tech. Puedo darte información en tiempo real sobre libros, autores y estadísticas. ¿En qué te ayudo?</div>
+            </div>
+            <div class="bot-suggestions" id="botSuggestions">
+                <button class="suggestion-btn" onclick="askBot('¿Cuántos libros hay?')">Total libros</button>
+                <button class="suggestion-btn" onclick="askBot('Categorías')">Categorías</button>
+                <button class="suggestion-btn" onclick="askBot('¿Qué libros tienes?')">Ver títulos</button>
+            </div>
+            <form class="bot-input-area" onsubmit="event.preventDefault(); handleBotSubmit();">
+                <input type="text" id="botInput" placeholder="Escribe tu duda..." autocomplete="off">
+                <button type="submit"><i class="fa fa-paper-plane"></i></button>
+            </form>
+        </div>
+        <div class="bot-button" onclick="toggleBot()">
+            <i class="fa fa-comments fa-2x"></i>
+        </div>
+    </div>
+
+    <script>
+        function toggleBot() {
+            document.getElementById('botWindow').classList.toggle('active');
+            if(document.getElementById('botWindow').classList.contains('active')) {
+                document.getElementById('botInput').focus();
+            }
+        }
+
+        function addBotMsg(text, type) {
+            const container = document.getElementById('botMessages');
+            const div = document.createElement('div');
+            div.className = `msg ${type}`;
+            div.innerText = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function updateBotSuggestions(suggestions) {
+            const container = document.getElementById('botSuggestions');
+            if (!suggestions || suggestions.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            container.innerHTML = '';
+            container.style.display = 'flex';
+            suggestions.forEach(s => {
+                const btn = document.createElement('button');
+                btn.className = 'suggestion-btn';
+                btn.innerText = s;
+                btn.onclick = () => askBot(s);
+                container.appendChild(btn);
+            });
+        }
+
+        async function askBot(text) {
+            if (!text.trim()) return;
+            const input = document.getElementById('botInput');
+            input.disabled = true;
+            addBotMsg(text, 'user');
+            
+            try {
+                const response = await fetch('/Libros/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await response.json();
+                addBotMsg(data.reply, 'bot');
+                if (data.suggestions) updateBotSuggestions(data.suggestions);
+            } catch (e) {
+                addBotMsg("Lo siento, perdí la conexión con la base de datos.", "bot");
+            } finally {
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        function handleBotSubmit() {
+            const input = document.getElementById('botInput');
+            const val = input.value;
+            if(val) {
+                askBot(val);
+                input.value = '';
+            }
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,159 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    📚 BIBLIOTECA v2.1.0 - PROYECTO LIMPIO
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ ESTADO: PROYECTO LIMPIO Y ORGANIZADO
+   - Archivos innecesarios eliminados (7 .md + 4 archivos temp)
+   - Pruebas QA automáticas implementadas (20 casos)
+   - Código fuente intacto y funcional
+   - Documentación esencial presente
+
+───────────────────────────────────────────────────────────────────────────────
+📁 ESTRUCTURA DEL PROYECTO
+───────────────────────────────────────────────────────────────────────────────
+
+biblioteca/
+├─ biblioteca_python/              ✅ Aplicación principal (MVC)
+│  ├─ models/                     ✅ Modelos de datos
+│  ├─ routes/                     ✅ Rutas/Endpoints
+│  ├─ static/                     ✅ Archivos CSS/JS/Imágenes
+│  ├─ templates/                  ✅ Plantillas HTML
+│  ├─ app.py                      ✅ Aplicación Flask
+│  ├─ config.py                   ✅ Configuración
+│  ├─ database.py                 ✅ ORM y conexión BD
+│  ├─ security.py                 ✅ Autenticación
+│  └─ ... (otros módulos)         ✅
+│
+├─ logs/                            ✅ Registros de aplicación
+├─ tests/                           ✅ Tests unitarios
+├─ temp/                            ✅ Archivos temporales
+
+📄 ARCHIVOS ESENCIALES (RAÍZ):
+├─ README.md                        📖 Documentación principal
+├─ DEVELOPMENT.md                   📖 Guía de desarrollo
+├─ requirements.txt                 📦 Dependencias Python
+│
+├─ run_qa_tests.py                 ✨ NUEVO: Pruebas QA automáticas (20 casos)
+│  │  • CP_US_01-05 (Usuarios)
+│  │  • CP_CAT_01-05 (Catálogo)
+│  │  • CP_INV_01-05 (Inventario)
+│  └─ CP_PR_01-05 (Préstamos)
+│
+├─ run_app_prod.py                 🚀 Ejecutar aplicación producción
+├─ docker-compose.yml              🐳 Docker para BD MySQL
+├─ Dockerfile                      🐳 Imagen Docker
+│
+└─ *.sql                           💾 Scripts de BD
+
+───────────────────────────────────────────────────────────────────────────────
+🚀 CÓMO INICIAR EL PROYECTO
+───────────────────────────────────────────────────────────────────────────────
+
+1. INSTALAR DEPENDENCIAS:
+   pip install -r requirements.txt
+
+2. INICIAR BASE DE DATOS (Docker):
+   docker-compose up -d
+
+3. EJECUTAR LA APLICACIÓN:
+   python run_app_prod.py
+
+4. EJECUTAR PRUEBAS QA:
+   cd biblioteca_python
+   python ../run_qa_tests.py
+
+5. ACCEDER AL SISTEMA:
+   http://localhost:8000
+
+───────────────────────────────────────────────────────────────────────────────
+✅ PRUEBAS QA AUTOMATIZADAS
+───────────────────────────────────────────────────────────────────────────────
+
+MÓDULO 1: USUARIOS Y ROLES
+✓ CP_US_01 - Iniciar sesión exitoso
+✓ CP_US_02 - Usuario inexistente
+✓ CP_US_03 - Contraseña incorrecta
+✓ CP_US_04 - Usuario desactivado
+✓ CP_US_05 - Campos requeridos
+
+MÓDULO 2: CATÁLOGO
+✓ CP_CAT_01 - Registrar libro exitoso
+✓ CP_CAT_02 - ISBN duplicado
+✓ CP_CAT_03 - ISBN requerido
+✓ CP_CAT_04 - Campos opcionales
+✓ CP_CAT_05 - Cantidad positiva
+
+MÓDULO 3: INVENTARIO
+✓ CP_INV_01 - Disponibilidad existente
+✓ CP_INV_02 - Libro agotado
+✓ CP_INV_03 - Libro inexistente
+✓ CP_INV_04 - Listar todos
+✓ CP_INV_05 - Filtrar disponibles
+
+MÓDULO 4: PRÉSTAMOS
+✓ CP_PR_01 - Préstamo exitoso
+✓ CP_PR_02 - Cantidad insuficiente
+✓ CP_PR_03 - Estudiante inactivo
+✓ CP_PR_04 - Renovar préstamo
+✓ CP_PR_05 - Devolver préstamo
+
+───────────────────────────────────────────────────────────────────────────────
+🔧 ARQUITECTURA
+───────────────────────────────────────────────────────────────────────────────
+
+PATRÓN: MVC + Layered Architecture
+├─ Modelo (Models/)         → Base de datos
+├─ Controlador (Routes/)    → Lógica de rutas
+├─ Vista (Templates/)       → Frontend HTML
+└─ Servicios (Services.py)  → Lógica de negocio
+
+STACK TECNOLÓGICO:
+├─ Backend: Flask 3.11+
+├─ ORM: Custom Query builder
+├─ BD: MySQL 8.0
+├─ Frontend: HTML5 + CSS3 + JavaScript
+├─ Server: Gunicorn + Nginx (producción)
+└─ Reportes: PDF, Excel, Word (ReportService v2.1.0)
+
+───────────────────────────────────────────────────────────────────────────────
+📊 REPORTES
+───────────────────────────────────────────────────────────────────────────────
+
+ReportService v2.1.0 genera:
+✓ Reportes PDF profesionales (estilos avanzados)
+✓ Reportes Excel con formato
+✓ Reportes Word con tablas
+✓ Gráficas y estadísticas
+
+───────────────────────────────────────────────────────────────────────────────
+📝 ARCHIVOS ELIMINADOS (LIMPIEZA)
+───────────────────────────────────────────────────────────────────────────────
+
+✓ TALLER_2_CASOS_PRUEBA.md          (convertido a run_qa_tests.py)
+✓ REPORTES_QUICK_REFERENCE.md       (redundante)
+✓ DOCUMENTO_FINAL.md                (redundante)
+✓ INDICE_DOCUMENTACION.md           (redundante)
+✓ RESUMEN_FINAL.md                  (redundante)
+✓ INICIO_AQUI.md                    (reemplazado por README.md)
+✓ 00_RESUMEN_ENTREGA.txt            (redundante)
+✓ QUICK_CARD.txt                    (redundante)
+✓ SCRIPTS_SETUP.txt                 (obsoleto)
+✓ tmp_recent_log.txt                (temporal)
+✓ tmp_recent_log_utf8.txt           (temporal)
+✓ 16 archivos .bat/.ps1             (limpieza anterior)
+
+Total: ~110 KB eliminados
+
+───────────────────────────────────────────────────────────────────────────────
+✨ RESULTADO FINAL
+───────────────────────────────────────────────────────────────────────────────
+
+✅ Proyecto limpio y organizado
+✅ Código fuente intacto
+✅ Pruebas QA automatizadas
+✅ Documentación esencial presente
+✅ Listo para producción
+
+═══════════════════════════════════════════════════════════════════════════════
+Fecha: 31/05/2026 - Versión: 2.1.0
+═══════════════════════════════════════════════════════════════════════════════

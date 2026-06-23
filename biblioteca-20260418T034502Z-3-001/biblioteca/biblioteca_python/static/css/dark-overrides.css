@@ -1,0 +1,666 @@
+:root {
+  --dark-bg: #071018;
+  --dark-bg-soft: #0d1722;
+  --dark-panel: #101c29;
+  --dark-panel-2: #142232;
+  --dark-border: rgba(148, 163, 184, 0.18);
+  --dark-border-strong: rgba(148, 163, 184, 0.28);
+  --dark-text: #e7edf5;
+  --dark-text-soft: #a8b4c3;
+  --dark-text-faint: #7f8da0;
+  --dark-accent: #58c4dc;
+  --dark-accent-2: #8b5cf6;
+  --dark-success: #22c55e;
+  --dark-warning: #f59e0b;
+  --dark-danger: #ef4444;
+  --dark-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  --gold-main: #c8a96e;
+  --gold-bright: #e8c882;
+  --gold-soft: #f5e4b8;
+  --light-main: #f3efe6;
+  --light-soft: #fff8e8;
+}
+
+html,
+body,
+body *:not(.fa):not(.fas):not(.far):not(.fab):not(.btn-success):not(.btn-danger):not(.btn-warning):not(.btn-info) {
+  color: var(--light-main) !important;
+}
+
+body * {
+  -webkit-text-fill-color: currentColor;
+}
+
+body,
+.app-content,
+.app-sidebar,
+.app-header,
+.dropdown-menu,
+.modal-content,
+.tile,
+.card,
+.table,
+.form-control,
+.form-control:focus,
+.select2-container--default .select2-selection--single,
+.select2-dropdown,
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+  color: var(--light-main) !important;
+  -webkit-text-fill-color: var(--light-main) !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at top, rgba(88, 196, 220, 0.08), transparent 28%),
+    linear-gradient(180deg, #071018 0%, #050b12 100%) !important;
+}
+
+a,
+.link-muted,
+.app-menu__item,
+.treeview-item,
+.dropdown-item {
+  color: var(--gold-main);
+}
+
+a:hover,
+.link-muted:hover {
+  color: var(--gold-soft);
+}
+
+.app-header {
+  background: rgba(9, 18, 27, 0.88) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--dark-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+
+.app-header__logo {
+  background: linear-gradient(135deg, #102536 0%, #163349 100%) !important;
+  color: var(--gold-soft) !important;
+  letter-spacing: 0.06em;
+}
+
+.app-nav__item,
+.app-sidebar__toggle {
+  color: var(--gold-main) !important;
+}
+
+.app-sidebar {
+  background:
+    linear-gradient(180deg, rgba(11, 23, 34, 0.98) 0%, rgba(7, 14, 22, 0.98) 100%) !important;
+  border-right: 1px solid var(--dark-border);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+.app-sidebar__user {
+  border-bottom: 1px solid var(--dark-border);
+}
+
+.app-sidebar__user-name {
+  color: var(--gold-soft) !important;
+}
+
+.app-sidebar__user-designation {
+  color: var(--gold-main) !important;
+}
+
+.app-menu__item,
+.treeview-item {
+  border-radius: 12px;
+  margin: 4px 10px;
+  transition: background-color .2s ease, transform .2s ease, color .2s ease;
+}
+
+.app-menu__item:hover,
+.app-menu__item.active,
+.treeview-item:hover,
+.treeview.is-expanded > .app-menu__item {
+  background: rgba(88, 196, 220, 0.12) !important;
+  color: var(--gold-soft) !important;
+  transform: translateX(2px);
+}
+
+.treeview-menu {
+  background: transparent !important;
+}
+
+.app-content {
+  background: transparent !important;
+}
+
+.tile,
+.card,
+.login-content .login-box,
+.page-error.tile,
+.widget-small.primary.coloured-icon,
+.widget-small.info.coloured-icon,
+.widget-small.warning.coloured-icon,
+.widget-small.danger.coloured-icon,
+.modal-content,
+.dropdown-menu,
+.app-notification {
+  background: linear-gradient(180deg, var(--dark-panel) 0%, var(--dark-panel-2) 100%) !important;
+  border: 1px solid var(--dark-border) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--dark-shadow);
+}
+
+.tile-title,
+.app-title h1,
+.modal-title,
+.widget-small .info h4,
+.card-title,
+.card-header,
+.page-error h3,
+.login-head,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+th,
+thead th,
+legend,
+.badge,
+.nav-link,
+.dropdown-header,
+.page-error h1 {
+  color: var(--gold-bright) !important;
+}
+
+.tile,
+.card,
+.modal-body,
+.modal-footer,
+.modal-header,
+.page-error,
+.dropdown-item,
+.app-notification__title,
+.app-notification__message,
+.app-notification__meta,
+.widget-small .info p,
+label,
+p,
+small,
+span,
+li {
+  color: var(--light-main);
+}
+
+.modal-header,
+.modal-footer,
+.login-content .login-box .login-head,
+.folder-head,
+.mailbox-controls {
+  border-color: var(--dark-border) !important;
+}
+
+.form-control,
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input,
+.select2-container--default .select2-selection--single,
+.select2-dropdown {
+  background: rgba(8, 15, 24, 0.9) !important;
+  border: 1px solid var(--dark-border-strong) !important;
+  color: var(--gold-soft) !important;
+  border-radius: 12px !important;
+}
+
+.form-control::placeholder,
+.dataTables_wrapper .dataTables_filter input::placeholder,
+textarea::placeholder,
+input::placeholder {
+  color: rgba(200, 169, 110, 0.55) !important;
+}
+
+.form-control:focus,
+.dataTables_wrapper .dataTables_filter input:focus,
+.dataTables_wrapper .dataTables_length select:focus {
+  box-shadow: 0 0 0 3px rgba(88, 196, 220, 0.14) !important;
+  border-color: rgba(88, 196, 220, 0.55) !important;
+}
+
+table.dataTable,
+.table {
+  background: transparent !important;
+}
+
+table.dataTable thead th,
+.table th {
+  background: rgba(88, 196, 220, 0.08) !important;
+  color: var(--gold-bright) !important;
+  border-bottom: 1px solid var(--dark-border-strong) !important;
+}
+
+table.dataTable tbody td,
+.table td {
+  background: rgba(10, 18, 28, 0.45);
+  color: var(--light-main) !important;
+  border-color: var(--dark-border) !important;
+}
+
+table.dataTable tbody td *,
+.table td *,
+#tblUsuarios tbody td,
+#tblUsuarios tbody td *,
+#tblUsuarios_wrapper tbody td,
+#tblUsuarios_wrapper tbody td * {
+  color: var(--light-main) !important;
+  -webkit-text-fill-color: var(--light-main) !important;
+  opacity: 1 !important;
+}
+
+table.dataTable.stripe tbody tr.odd,
+table.dataTable.display tbody tr.odd,
+.table tbody tr:nth-child(odd) td {
+  background: rgba(15, 25, 36, 0.82) !important;
+}
+
+table.dataTable tbody tr:hover td,
+.table tbody tr:hover td {
+  background: rgba(88, 196, 220, 0.08) !important;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate,
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label {
+  color: var(--light-main) !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_empty,
+.dataTables_wrapper .sorting,
+.dataTables_wrapper .sorting_asc,
+.dataTables_wrapper .sorting_desc {
+  color: var(--light-main) !important;
+  -webkit-text-fill-color: var(--light-main) !important;
+}
+
+.dataTables_wrapper select,
+.dataTables_wrapper input,
+.dataTables_wrapper option {
+  color: var(--light-soft) !important;
+  -webkit-text-fill-color: var(--light-soft) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  background: rgba(88, 196, 220, 0.08) !important;
+  color: var(--gold-main) !important;
+  border: 1px solid var(--dark-border) !important;
+  border-radius: 10px !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: rgba(88, 196, 220, 0.18) !important;
+  color: var(--gold-soft) !important;
+}
+
+.btn,
+.btn-primary,
+.btn-success,
+.btn-danger,
+.btn-warning,
+.btn-info,
+.btn-secondary {
+  border-radius: 12px !important;
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1d90a9 0%, #2556d8 100%) !important;
+  border-color: rgba(88, 196, 220, 0.35) !important;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #15803d 0%, #22c55e 100%) !important;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%) !important;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%) !important;
+  color: #fff !important;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #0f766e 0%, #22d3ee 100%) !important;
+  color: #fff !important;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%) !important;
+  color: #fff !important;
+}
+
+.btn:hover {
+  filter: brightness(1.08);
+}
+
+.btn,
+.btn span,
+.btn strong,
+.btn small {
+  color: var(--gold-soft) !important;
+}
+
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-warning,
+.btn-outline-info,
+.btn-outline-dark,
+.btn-dark,
+.btn-light {
+  color: var(--gold-soft) !important;
+}
+
+.alert-success,
+.alert-danger,
+.alert-warning {
+  border-radius: 14px !important;
+  border-width: 1px !important;
+}
+
+.alert-success {
+  background: rgba(34, 197, 94, 0.12) !important;
+  color: #9be7b0 !important;
+  border-color: rgba(34, 197, 94, 0.26) !important;
+}
+
+.alert-danger {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #ff9d9d !important;
+  border-color: rgba(239, 68, 68, 0.24) !important;
+}
+
+.alert-warning {
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #ffd58c !important;
+  border-color: rgba(245, 158, 11, 0.24) !important;
+}
+
+.widget-small .icon {
+  border-radius: 18px 0 0 18px !important;
+}
+
+.widget-small.primary.coloured-icon .info,
+.widget-small.info.coloured-icon .info,
+.widget-small.warning.coloured-icon .info,
+.widget-small.danger.coloured-icon .info {
+  color: var(--gold-main) !important;
+}
+
+.app-notification__content,
+.app-notification__footer,
+.app-notification__title {
+  background: transparent !important;
+  border-color: var(--dark-border) !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: rgba(88, 196, 220, 0.12) !important;
+}
+
+.close,
+button.close {
+  color: var(--gold-main) !important;
+  opacity: .8;
+}
+
+.text-muted {
+  color: var(--light-main) !important;
+}
+
+.text-dark,
+.text-body,
+.text-primary,
+.text-secondary,
+.text-info,
+.text-success,
+.text-warning,
+.text-danger,
+.text-black-50,
+.text-white,
+.text-white-50 {
+  color: var(--light-main) !important;
+}
+
+.badge-primary,
+.badge-secondary,
+.badge-success,
+.badge-danger,
+.badge-warning,
+.badge-info,
+.badge-light,
+.badge-dark {
+  color: var(--gold-soft) !important;
+}
+
+.app-nav__item .fa,
+.app-menu__icon,
+.treeview-item .icon,
+.dropdown-item i,
+.widget-small .icon,
+.page-error .fa,
+.app-title .fa {
+  color: var(--gold-bright) !important;
+}
+
+.table a,
+.dataTables_wrapper a,
+.app-notification a,
+.dropdown-menu a,
+.modal-content a {
+  color: var(--gold-bright) !important;
+}
+
+.table a:hover,
+.dataTables_wrapper a:hover,
+.app-notification a:hover,
+.dropdown-menu a:hover,
+.modal-content a:hover {
+  color: var(--gold-soft) !important;
+}
+
+input,
+select,
+textarea,
+option,
+label,
+legend,
+fieldset,
+.select2-results__option,
+.select2-selection__rendered,
+.dataTables_wrapper,
+.dataTables_wrapper *:not(.fa),
+.modal-content *:not(.fa),
+.tile *:not(.fa),
+.card *:not(.fa) {
+  color: var(--light-main) !important;
+}
+
+strong,
+b,
+.font-weight-bold,
+.font-weight-bolder,
+.thead-dark th,
+.badge,
+.btn-dark,
+.btn-dark *,
+.btn-primary *,
+.btn-secondary *,
+.btn-success *,
+.btn-danger *,
+.btn-warning *,
+.btn-info * {
+  color: var(--gold-soft) !important;
+  -webkit-text-fill-color: var(--gold-soft) !important;
+}
+
+.badge-success,
+.badge-danger,
+.badge-warning,
+.badge-info,
+.badge-primary,
+.badge-secondary,
+.badge-dark,
+.badge-light {
+  color: #fff8e8 !important;
+  -webkit-text-fill-color: #fff8e8 !important;
+}
+
+.app-menu__label,
+.app-sidebar__user-name,
+.app-sidebar__user-designation,
+.tile-body,
+.modal-body,
+.modal-footer,
+.modal-header,
+.card-body,
+.card-header,
+.card-title,
+.page-error,
+.page-error *,
+.select2-results__option,
+.select2-selection__choice,
+.select2-selection__choice__display {
+  color: var(--light-main) !important;
+  -webkit-text-fill-color: var(--light-main) !important;
+  opacity: 1 !important;
+}
+
+@media (max-width: 768px) {
+  .app-content {
+    padding: 18px !important;
+  }
+}
+
+/* Candado final: evita que Bootstrap/DataTables vuelvan a oscurecer textos */
+html body .table,
+html body .table *,
+html body table,
+html body table *,
+html body .dataTables_wrapper,
+html body .dataTables_wrapper *,
+html body .tile,
+html body .tile *,
+html body .card,
+html body .card *,
+html body .modal-content,
+html body .modal-content *,
+html body .form-group,
+html body .form-group *,
+html body form,
+html body form *,
+html body label,
+html body span,
+html body p,
+html body small,
+html body strong,
+html body b,
+html body th,
+html body td,
+html body tr,
+html body thead,
+html body tbody,
+html body .text-dark,
+html body .text-body,
+html body .text-primary,
+html body .text-secondary,
+html body .text-info,
+html body .text-success,
+html body .text-warning,
+html body .text-danger {
+  color: var(--light-main) !important;
+  -webkit-text-fill-color: var(--light-main) !important;
+}
+
+html body h1,
+html body h2,
+html body h3,
+html body h4,
+html body h5,
+html body h6,
+html body .tile-title,
+html body .modal-title,
+html body .app-title h1,
+html body table thead th,
+html body .thead-dark th {
+  color: var(--gold-bright) !important;
+  -webkit-text-fill-color: var(--gold-bright) !important;
+}
+
+html body input,
+html body select,
+html body textarea,
+html body option,
+html body .form-control,
+html body .custom-select,
+html body .select2-selection__rendered,
+html body .dataTables_length select,
+html body .dataTables_filter input {
+  color: var(--light-soft) !important;
+  -webkit-text-fill-color: var(--light-soft) !important;
+}
+
+html body .btn,
+html body .btn *,
+html body .badge,
+html body .badge * {
+  color: #fff4d6 !important;
+  -webkit-text-fill-color: #fff4d6 !important;
+}
+
+html body table.table-bordered.dataTable tbody > tr > td,
+html body table.table-bordered tbody > tr > td,
+html body table.dataTable tbody > tr > td,
+html body #tblUsuarios tbody > tr > td,
+html body #tblEstudiantes tbody > tr > td,
+html body #tblLibros tbody > tr > td,
+html body #tblPrestamos tbody > tr > td,
+html body #tblEditorial tbody > tr > td,
+html body #tblAutores tbody > tr > td,
+html body #tblMaterias tbody > tr > td {
+  color: #fff8e8 !important;
+  -webkit-text-fill-color: #fff8e8 !important;
+  opacity: 1 !important;
+  text-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
+}
+
+html body table.table-bordered.dataTable tbody > tr > td *,
+html body table.table-bordered tbody > tr > td *,
+html body table.dataTable tbody > tr > td *,
+html body #tblUsuarios tbody > tr > td *,
+html body #tblEstudiantes tbody > tr > td *,
+html body #tblLibros tbody > tr > td *,
+html body #tblPrestamos tbody > tr > td *,
+html body #tblEditorial tbody > tr > td *,
+html body #tblAutores tbody > tr > td *,
+html body #tblMaterias tbody > tr > td * {
+  color: #fff8e8 !important;
+  -webkit-text-fill-color: #fff8e8 !important;
+  opacity: 1 !important;
+}
+
+html body table.table-hover tbody tr:hover,
+html body table.table-hover tbody tr:hover > td,
+html body table.dataTable tbody tr:hover,
+html body table.dataTable tbody tr:hover > td {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: rgba(20, 33, 50, 0.96) !important;
+}

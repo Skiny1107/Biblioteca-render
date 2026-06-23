@@ -1,0 +1,526 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap');
+
+/* ── Variables ────────────────────────────────────────────── */
+:root {
+  --bg-void: #07090f;
+  --bg-deep: #0d1117;
+  --bg-card: #151e2d;
+  --bg-hover: #1a2640;
+
+  --gold: #c8a96e;
+  --gold-bright: #e8c882;
+  --gold-glow: rgba(200, 169, 110, .18);
+  --gold-border: rgba(200, 169, 110, .22);
+  --gold-trace: rgba(200, 169, 110, .07);
+
+  --text-main: #e8dcc8;
+  --text-soft: #a89878;
+  --text-muted: #3a3020;
+
+  --radius: 10px;
+  --radius-lg: 18px;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background-color: var(--bg-void);
+  color: var(--text-main);
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 10%, rgba(200, 169, 110, .05) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 50% at 90% 90%, rgba(74, 158, 255, .03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Layout Sidebar/Content ─────────────────────────────────── */
+.app-sidebar {
+  position: fixed !important;
+  top: 50px !important;
+  left: 0 !important;
+  width: 230px !important;
+  height: calc(100vh - 50px) !important;
+  overflow-y: auto !important;
+  background: rgba(17, 29, 47, 0.98) !important;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.35) !important;
+  z-index: 999 !important;
+}
+
+.app-content {
+  margin-left: 230px !important;
+  padding: 90px 24px 24px !important;
+  min-height: calc(100vh - 50px) !important;
+  transition: margin-left .3s ease !important;
+}
+
+@media (max-width: 767px) {
+  .app-sidebar {
+    left: -230px !important;
+    top: 0 !important;
+    height: 100vh !important;
+  }
+
+  .app-content {
+    margin-left: 0 !important;
+    padding-top: 70px !important;
+  }
+
+  .app-sidebar__overlay {
+    visibility: hidden !important;
+  }
+}
+
+/* ── Título ───────────────────────────────────────────────── */
+.app-title {
+  position: relative;
+  padding: 28px 32px 22px;
+  margin-bottom: 8px;
+  animation: fadeSlideDown .5s var(--ease) both;
+}
+
+.app-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 32px;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  border-radius: 2px;
+}
+
+.app-title h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--gold-bright);
+  text-shadow: 0 0 40px rgba(200, 169, 110, .35);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-title h1 i {
+  color: var(--gold);
+  filter: drop-shadow(0 0 8px rgba(200, 169, 110, .5));
+  animation: spin-slow 12s linear infinite;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Grid ─────────────────────────────────────────────────── */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -10px;
+}
+
+.col-lg-12 {
+  width: 100%;
+  padding: 0 10px;
+}
+
+.col-md-6 {
+  width: 50%;
+  padding: 0 10px;
+}
+
+/* ── Tile ─────────────────────────────────────────────────── */
+.tile {
+  background: var(--bg-card);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, .5),
+    0 0 0 1px var(--gold-trace),
+    inset 0 1px 0 rgba(200, 169, 110, .08);
+  animation: fadeSlideUp .55s var(--ease) .1s both;
+  transition: box-shadow .35s var(--ease);
+  margin-bottom: 20px;
+}
+
+.tile:hover {
+  box-shadow:
+    0 12px 50px rgba(0, 0, 0, .6),
+    0 0 30px rgba(200, 169, 110, .06),
+    0 0 0 1px rgba(200, 169, 110, .2);
+}
+
+.tile-body {
+  padding: 32px 36px;
+}
+
+/* ── Separador de secciones dentro del form ───────────────── */
+.tile-body>form>.row {
+  position: relative;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+/* Línea decorativa entre filas */
+.tile-body>form>.row+.row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10px;
+  right: 10px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-trace), transparent);
+}
+
+/* ── Form groups ──────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 22px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 8px;
+  transition: color .2s var(--ease);
+}
+
+.form-group:focus-within label {
+  color: var(--gold);
+}
+
+/* Ícono decorativo por tipo de campo */
+.form-group::before {
+  content: '◆';
+  position: absolute;
+  left: -16px;
+  top: 2px;
+  font-size: .4rem;
+  color: var(--gold-trace);
+  transition: color .2s var(--ease), transform .2s var(--ease);
+}
+
+.form-group:focus-within::before {
+  color: var(--gold);
+  transform: scale(1.4);
+}
+
+/* ── Inputs ───────────────────────────────────────────────── */
+.form-control {
+  width: 100%;
+  background: rgba(200, 169, 110, .04) !important;
+  border: 1px solid rgba(200, 169, 110, .18) !important;
+  border-radius: var(--radius) !important;
+  color: var(--text-main) !important;
+  font-family: 'Crimson Pro', serif !important;
+  font-size: 1rem !important;
+  padding: 10px 14px !important;
+  transition:
+    border-color .25s var(--ease),
+    background .25s var(--ease),
+    box-shadow .25s var(--ease),
+    transform .2s var(--ease) !important;
+}
+
+.form-control::placeholder {
+  color: rgba(90, 80, 60, .6) !important;
+}
+
+.form-control:focus {
+  outline: none !important;
+  border-color: var(--gold) !important;
+  background: rgba(200, 169, 110, .07) !important;
+  box-shadow:
+    0 0 0 3px rgba(200, 169, 110, .13),
+    0 0 20px rgba(200, 169, 110, .05) !important;
+  transform: translateY(-1px);
+}
+
+/* Input file especial */
+input[type="file"].form-control {
+  padding: 7px 14px !important;
+  cursor: pointer;
+  color: var(--text-soft) !important;
+}
+
+input[type="file"].form-control::-webkit-file-upload-button {
+  background: rgba(200, 169, 110, .12);
+  border: 1px solid var(--gold-border);
+  border-radius: 6px;
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: .7rem;
+  letter-spacing: .06em;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all .2s var(--ease);
+  margin-right: 10px;
+}
+
+input[type="file"].form-control::-webkit-file-upload-button:hover {
+  background: rgba(200, 169, 110, .22);
+  border-color: var(--gold);
+  color: var(--gold-bright);
+}
+
+/* Input email — pequeño ícono hint */
+input[type="email"].form-control {
+  padding-left: 14px !important;
+}
+
+/* ── Campos de sólo lectura / hidden ──────────────────────── */
+input[type="hidden"] {
+  display: none;
+}
+
+/* ── MINI MENU (estilo contemporáneo) ─────────────────────── */
+.app-sidebar {
+  background: linear-gradient(180deg, rgba(9, 14, 33, .88), rgba(10, 17, 42, .95));
+  border-right: 1px solid rgba(200, 169, 110, .18);
+  padding: 18px 12px;
+}
+
+.app-sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.app-sidebar ul li {
+  margin: 6px 0;
+}
+
+.app-sidebar ul li a {
+  display: block;
+  color: #b3c7f5;
+  font-family: 'Crimson Pro', serif;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all .22s ease;
+}
+
+.app-sidebar ul li a:hover,
+.app-sidebar ul li a.active {
+  color: #fff;
+  background: rgba(74, 158, 255, .16);
+  box-shadow: 0 0 16px rgba(74, 158, 255, .22);
+}
+
+.app-sidebar ul li ul {
+  padding-left: 16px;
+  margin-top: 4px;
+}
+
+.app-sidebar ul li ul li a {
+  font-weight: 400;
+  color: #9ab7e4;
+  font-size: .92rem;
+}
+
+.app-sidebar ul li ul li a:hover {
+  color: #d5e7ff;
+}
+
+.app-sidebar .app-sidebar__logo {
+  font-family: 'Cinzel', serif;
+  letter-spacing: .12em;
+  color: var(--gold-bright);
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(200, 169, 110, .18);
+  padding-bottom: 10px;
+}
+
+.app-sidebar .app-sidebar__user {
+  color: #e8f0ff;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(200, 169, 110, .12);
+}
+
+/* ── Divider ornamental entre secciones ───────────────────── */
+.tile-body form .row:nth-child(4) {
+  position: relative;
+}
+
+.tile-body form .row:nth-child(4)::after {
+  content: '— ✦ —';
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: .7rem;
+  letter-spacing: .3em;
+  color: rgba(200, 169, 110, .2);
+  padding: 6px 0 0;
+  grid-column: 1 / -1;
+}
+
+/* ── Botón Actualizar ─────────────────────────────────────── */
+.btn-primary {
+  font-family: 'Cinzel', serif;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 11px 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--gold-border);
+  background: linear-gradient(135deg,
+      rgba(200, 169, 110, .18) 0%,
+      rgba(200, 169, 110, .09) 50%,
+      rgba(200, 169, 110, .14) 100%);
+  color: var(--gold-bright);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all .28s var(--ease);
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Shimmer */
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(200, 169, 110, .25), transparent);
+  transition: left .5s var(--ease);
+}
+
+.btn-primary:hover {
+  color: #fff8e8;
+  border-color: var(--gold);
+  box-shadow: 0 0 24px var(--gold-glow), 0 6px 20px rgba(0, 0, 0, .4);
+  transform: translateY(-2px);
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ── Indicador de campos requeridos ──────────────────────── */
+.form-group label::after {
+  content: ' ✦';
+  font-size: .5rem;
+  color: rgba(200, 169, 110, .35);
+  vertical-align: super;
+}
+
+/* ── Animación de entrada del formulario ──────────────────── */
+/* Filas del form con stagger */
+.tile-body form .row:nth-child(1) {
+  animation: fadeSlideUp .45s var(--ease) .2s both;
+}
+
+.tile-body form .row:nth-child(2) {
+  animation: fadeSlideUp .45s var(--ease) .28s both;
+}
+
+.tile-body form .row:nth-child(3) {
+  animation: fadeSlideUp .45s var(--ease) .36s both;
+}
+
+.tile-body form .row:nth-child(4) {
+  animation: fadeSlideUp .45s var(--ease) .44s both;
+}
+
+.btn-primary {
+  animation: fadeSlideUp .45s var(--ease) .52s both;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 169, 110, .25);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 169, 110, .45);
+}
+
+/* ── Animaciones ──────────────────────────────────────────── */
+@keyframes fadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .col-md-6 {
+    width: 100%;
+  }
+
+  .tile-body {
+    padding: 20px 18px;
+  }
+
+  .app-title {
+    padding: 20px 16px 14px;
+  }
+
+  .app-title h1 {
+    font-size: 1.3rem;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}

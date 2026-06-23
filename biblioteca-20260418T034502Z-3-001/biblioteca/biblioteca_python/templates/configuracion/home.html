@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Panel Administrativo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+{% block content %}
+<div class="app-title">
+    <div><h1><i class="fa fa-dashboard"></i> Panel Administrativo</h1></div>
+</div>
+<div class="row">
+    <div class="col-md-6 col-lg-3">
+        <a href="{{ url_for('usuarios.index') }}" class="link-muted">
+            <div class="widget-small primary coloured-icon"><i class="icon fa fa-users fa-3x"></i>
+                <div class="info"><h4>Usuarios</h4><p><b>{{ data.usuarios.total }}</b></p></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <a href="{{ url_for('libros.index') }}" class="link-muted">
+            <div class="widget-small info coloured-icon"><i class="icon fa fa-book fa-3x"></i>
+                <div class="info"><h4>Libros</h4><p><b>{{ data.libros.total }}</b></p></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <a href="{{ url_for('estudiantes.index') }}" class="link-muted">
+            <div class="widget-small warning coloured-icon"><i class="icon fa fa-graduation-cap fa-3x"></i>
+                <div class="info"><h4>Estudiantes</h4><p><b>{{ data.estudiantes.total }}</b></p></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <a href="{{ url_for('prestamos.index') }}" class="link-muted">
+            <div class="widget-small danger coloured-icon"><i class="icon fa fa-hourglass-start fa-3x"></i>
+                <div class="info"><h4>Préstamos</h4><p><b>{{ data.prestamos.total }}</b></p></div>
+            </div>
+        </a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 col-lg-4">
+        <a href="{{ url_for('materia.index') }}" class="link-muted">
+            <div class="widget-small info coloured-icon"><i class="icon fa fa-list-alt fa-3x"></i>
+                <div class="info"><h4>Materias</h4><p><b>{{ data.materias.total }}</b></p></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <a href="{{ url_for('autor.index') }}" class="link-muted">
+            <div class="widget-small warning coloured-icon"><i class="icon fa fa-address-book-o fa-3x"></i>
+                <div class="info"><h4>Autores</h4><p><b>{{ data.autor.total }}</b></p></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <a href="{{ url_for('editorial.index') }}" class="link-muted">
+            <div class="widget-small danger coloured-icon"><i class="icon fa fa-tags fa-3x"></i>
+                <div class="info"><h4>Editoriales</h4><p><b>{{ data.editorial.total }}</b></p></div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="tile">
+            <h3 class="tile-title">Reporte de Libros</h3>
+            <div class="embed-responsive embed-responsive-16by9">
+                <canvas class="embed-responsive-item" id="reporteLibros"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+<script>
+    $.get('/Configuracion/grafico', function(data) {
+        var titulos = [];
+        var cantidades = [];
+        var colores = [];
+        data.forEach(function(item) {
+            titulos.push(item.titulo);
+            cantidades.push(item.cantidad);
+            colores.push('#' + Math.floor(Math.random()*16777215).toString(16));
+        });
+        
+        var ctx = document.getElementById("reporteLibros").getContext("2d");
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: titulos,
+                datasets: [{ label: 'Cantidad', data: cantidades, backgroundColor: colores }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    });
+</script>
+{% endblock %}

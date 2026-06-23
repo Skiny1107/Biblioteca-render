@@ -1,0 +1,356 @@
+{% extends 'base.html' %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+<div class="app-title">
+    <div><h1><i class="fa fa-users"></i> Usuarios</h1></div>
+</div>
+
+<!-- Tarjetas de Métricas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="widget-small primary coloured-icon shadow-sm">
+            <i class="icon fa fa-users fa-3x"></i>
+            <div class="info">
+                <h4>Total Usuarios</h4>
+                <p><b id="metric-total" style="font-size:1.5rem;">0</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="widget-small success coloured-icon shadow-sm">
+            <i class="icon fa fa-user-circle fa-3x"></i>
+            <div class="info">
+                <h4>Activos</h4>
+                <p><b id="metric-activos" style="font-size:1.5rem;">0</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="widget-small danger coloured-icon shadow-sm">
+            <i class="icon fa fa-user-times fa-3x"></i>
+            <div class="info">
+                <h4>Inactivos</h4>
+                <p><b id="metric-inactivos" style="font-size:1.5rem;">0</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="widget-small info coloured-icon shadow-sm">
+            <i class="icon fa fa-shield fa-3x"></i>
+            <div class="info">
+                <h4>Personal (Staff)</h4>
+                <p><b id="metric-staff" style="font-size:1.5rem;">0</b></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Panel de Filtros -->
+<div class="tile mb-4">
+    <div class="tile-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="filter-rol" class="font-weight-bold">Filtrar por Rol</label>
+                    <select class="form-control" id="filter-rol">
+                        <option value="">Todos los Roles</option>
+                        <option value="administrador">Administrador</option>
+                        <option value="bibliotecario">Bibliotecario</option>
+                        <option value="usuario">Usuario</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="filter-estado" class="font-weight-bold">Filtrar por Estado</label>
+                    <select class="form-control" id="filter-estado">
+                        <option value="">Todos los Estados</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="form-group w-100">
+                    <button class="btn btn-secondary btn-block" onclick="limpiarFiltros();">
+                        <i class="fa fa-eraser"></i> Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if session.get('id_usuario') == 1 %}
+<button class="btn btn-primary mb-3" type="button" onclick="frmUsuario();">
+    <i class="fa fa-plus"></i> Nuevo Usuario
+</button>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="tile">
+            <div class="tile-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="tblUsuarios">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Id</th>
+                                <th>Usuario</th>
+                                <th>Nombre</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal nuevo/editar usuario -->
+<div id="nuevo_usuario" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white" id="titleUser">Nuevo Usuario</h5>
+                <button class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="frmUsuario">
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="hidden" id="id_user" name="id">
+                        <input class="form-control" type="text" name="usuario" id="usrInput" placeholder="Usuario" required minlength="3" maxlength="20" pattern="[A-Za-z0-9_-]{3,20}">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input class="form-control" type="text" name="nombre" id="nombreInput" placeholder="Nombre del usuario" required minlength="3" maxlength="100" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s.'-]{3,100}">
+                    </div>
+                    <div class="row" id="claves">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Contraseña</label>
+                                <input class="form-control" type="password" name="clave" id="claveInput" placeholder="Contraseña">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Confirmar Contraseña</label>
+                                <input class="form-control" type="password" name="confirmar" id="confirmarInput" placeholder="Confirmar">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="button" onclick="registrarUser(event);" id="btnAccion">Registrar</button>
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal permisos -->
+<div id="permisos_modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">Asignar Permisos</h5>
+                <button class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body" id="contenidoPermisos"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Cargar tabla usuarios
+    var table = $('#tblUsuarios').DataTable({
+        ajax: { url: '/Usuarios/listar', dataSrc: '' },
+        columns: [
+            { data: 'id' },
+            { data: 'usuario' },
+            { data: 'nombre' },
+            { data: 'rol', render: function(rol) {
+                var badge = 'badge-secondary';
+                var label = rol || 'usuario';
+                if (rol === 'administrador') {
+                    badge = 'badge-primary';
+                } else if (rol === 'bibliotecario') {
+                    badge = 'badge-info';
+                }
+                return '<span class="badge ' + badge + ' text-capitalize p-1 rounded">' + label + '</span>';
+            }},
+            { data: null, render: function(d) {
+                return d.estadoLabel === 'Activo'
+                    ? '<span class="badge badge-success">Activo</span>'
+                    : '<span class="badge badge-danger">Inactivo</span>';
+            }},
+            { data: null, render: function(d) {
+                if (d.acciones === 'superadmin') {
+                    return '<span class="badge badge-primary p-1 rounded">Super Administrador</span>';
+                } else if (d.acciones === 'editar,eliminar,roles') {
+                    return '<button class="btn btn-dark btn-sm" onclick="btnRolesUser('+d.id+')"><i class="fa fa-key"></i></button> ' +
+                           '<button class="btn btn-primary btn-sm" onclick="btnEditarUser('+d.id+')"><i class="fa fa-pencil-square-o"></i></button> ' +
+                           '<button class="btn btn-danger btn-sm" onclick="btnEliminarUser('+d.id+')"><i class="fa fa-trash-o"></i></button>';
+                } else if (d.acciones === 'reingresar') {
+                    return '<button class="btn btn-success btn-sm" onclick="btnReingresarUser('+d.id+')"><i class="fa fa-reply-all"></i></button>';
+                } else {
+                    // solo_lectura: usuario regular, sin botones
+                    return '<span class="text-muted">—</span>';
+                }
+            }}
+        ]
+    });
+
+    // Filtros personalizados en DataTables
+    $.fn.dataTable.ext.search.push(
+        function(settings, data, dataIndex) {
+            var filterRol = $('#filter-rol').val();
+            var filterEstado = $('#filter-estado').val();
+            
+            var rowData = table.row(dataIndex).data();
+            if (!rowData) return true;
+            
+            var rol = (rowData.rol || '').toLowerCase();
+            var estado = rowData.estadoLabel || '';
+            
+            if (filterRol && rol !== filterRol) {
+                return false;
+            }
+            if (filterEstado && estado !== filterEstado) {
+                return false;
+            }
+            return true;
+        }
+    );
+
+    // Eventos para redibujar la tabla cuando cambian los filtros
+    $('#filter-rol, #filter-estado').on('change', function() {
+        table.draw();
+    });
+
+    function limpiarFiltros() {
+        $('#filter-rol').val('');
+        $('#filter-estado').val('');
+        table.draw();
+    }
+
+    // Calcular y actualizar métricas de manera dinámica al redibujar la tabla
+    table.on('draw', function() {
+        var rowsData = table.rows({ search: 'applied' }).data();
+        var total = rowsData.length;
+        var activos = 0;
+        var inactivos = 0;
+        var staff = 0;
+        
+        for (var i = 0; i < total; i++) {
+            var row = rowsData[i];
+            if (row.estadoLabel === 'Activo') {
+                activos++;
+            } else {
+                inactivos++;
+            }
+            if (row.rol === 'administrador' || row.rol === 'bibliotecario') {
+                staff++;
+            }
+        }
+        
+        $('#metric-total').text(total);
+        $('#metric-activos').text(activos);
+        $('#metric-inactivos').text(inactivos);
+        $('#metric-staff').text(staff);
+    });
+
+    function frmUsuario() {
+        $('#titleUser').text('Nuevo Usuario');
+        $('#frmUsuario')[0].reset();
+        $('#id_user').val('');
+        $('#claves').show();
+        $('#claveInput, #confirmarInput').attr({'required': true, 'minlength': 8});
+        $('#nuevo_usuario').modal('show');
+    }
+
+    function registrarUser(e) {
+        e.preventDefault();
+        if ($('#claves').is(':visible')) {
+            $('#claveInput, #confirmarInput').attr({'required': true, 'minlength': 8});
+        } else {
+            $('#claveInput, #confirmarInput').removeAttr('required');
+        }
+        if (!validarFormulario('#frmUsuario')) return;
+        if ($('#claves').is(':visible') && $('#claveInput').val() !== $('#confirmarInput').val()) {
+            swal('Las contraseñas no coinciden', '', 'warning');
+            return;
+        }
+        $.post('/Usuarios/registrar', $('#frmUsuario').serialize(), function(res) {
+            swal(res.msg, '', res.icono);
+            if (res.icono === 'success') {
+                $('#nuevo_usuario').modal('hide');
+                table.ajax.reload();
+            }
+        });
+    }
+
+    function btnEditarUser(id) {
+        $.get('/Usuarios/editar/'+id, function(data) {
+            $('#titleUser').text('Editar Usuario');
+            $('#id_user').val(data.id);
+            $('#usrInput').val(data.usuario);
+            $('#nombreInput').val(data.nombre);
+            $('#claves').hide();
+            $('#claveInput, #confirmarInput').removeAttr('required').val('');
+            $('#nuevo_usuario').modal('show');
+        });
+    }
+
+    function btnEliminarUser(id) {
+        swal({title:'¿Dar de baja?', icon:'warning', buttons:true, dangerMode:true}).then(function(ok){
+            if(ok) {
+                $.get('/Usuarios/eliminar/'+id, function(res){
+                    swal(res.msg,'',res.icono);
+                    table.ajax.reload();
+                });
+            }
+        });
+    }
+
+    function btnReingresarUser(id) {
+        $.get('/Usuarios/reingresar/'+id, function(res){
+            swal(res.msg,'',res.icono);
+            table.ajax.reload();
+        });
+    }
+
+    function btnRolesUser(id) {
+        $.get('/Usuarios/permisos/'+id, function(data) {
+            var html = '<input type="hidden" name="id_usuario" value="'+data.id_usuario+'"><div class="row">';
+            data.permisos.forEach(function(p) {
+                var checked = data.asignados.includes(p.id) ? 'checked' : '';
+                html += '<div class="d-inline mx-3 text-center"><hr><label class="font-weight-bold text-capitalize">'+p.nombre+'</label>' +
+                        '<div class="center"><input type="checkbox" name="permisos[]" value="'+p.id+'" '+checked+'></div></div>';
+            });
+            html += '</div><button class="btn btn-primary mt-3 btn-block" onclick="registrarPermisos(event)">Actualizar</button>';
+            $('#contenidoPermisos').html(html);
+            $('#permisos_modal').modal('show');
+        });
+    }
+
+    function registrarPermisos(e) {
+        e.preventDefault();
+        var formData = new FormData();
+        formData.append('id_usuario', $('input[name="id_usuario"]').val());
+        $('input[name="permisos[]"]:checked').each(function(){
+            formData.append('permisos[]', $(this).val());
+        });
+        $.ajax({ url:'/Usuarios/registrarPermisos', method:'POST', data:formData,
+            processData:false, contentType:false,
+            success:function(res){ swal('Permisos actualizados','','success'); $('#permisos_modal').modal('hide'); }
+        });
+    }
+</script>
+{% endblock %}

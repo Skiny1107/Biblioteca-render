@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: biblioteca_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: biblioteca
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./biblioteca.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - biblioteca_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: biblioteca_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - biblioteca_network
+
+  app:
+    build: .
+    container_name: biblioteca_app
+    environment:
+      FLASK_ENV: production
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: biblioteca
+      DB_PORT: 3306
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: your-secret-key-here-change-this
+      JWT_SECRET: your-jwt-secret-key-here-change-this
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./biblioteca_python/logs:/app/logs
+      - ./biblioteca_python/uploads:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - biblioteca_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  biblioteca_network:
+    driver: bridge

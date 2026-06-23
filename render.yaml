@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: biblioteca
+    env: python
+    buildCommand: pip install -r biblioteca_python/requirements.txt
+    startCommand: gunicorn --chdir biblioteca_python --config biblioteca_python/gunicorn_config.py app:app
+    healthCheckPath: /health
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        fromDatabase:
+          name: biblioteca-db
+          property: connectionString
+
+databases:
+  - name: biblioteca-db
+    plan: free

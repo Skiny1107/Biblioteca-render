@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Editorial{% endblock %}
+{% block content %}
+<div class="app-title"><div><h1><i class="fa fa-tags"></i> Editorial</h1></div></div>
+<button class="btn btn-primary mb-2" onclick="frmEditorial()"><i class="fa fa-plus"></i> Nuevo</button>
+<div class="row"><div class="col-lg-12"><div class="tile"><div class="tile-body">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="tblEditorial">
+            <thead class="thead-dark"><tr><th>Id</th><th>Editorial</th><th>Estado</th><th></th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div></div></div></div>
+
+<div id="modal_editorial" class="modal fade" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header bg-primary">
+            <h5 class="modal-title text-white" id="titleEditorial">Nueva Editorial</h5>
+            <button class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+            <form id="frmEditorial">
+                <input type="hidden" id="id_editorial" name="id">
+                <div class="form-group"><label>Nombre Editorial</label>
+                    <input class="form-control" type="text" name="editorial" id="editorialInput" placeholder="Editorial"></div>
+                <button class="btn btn-primary" type="button" onclick="registrarEditorial(event)">Guardar</button>
+                <button class="btn btn-danger" type="button" data-dismiss="modal">Cancelar</button>
+            </form>
+        </div>
+    </div></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var tableEd = $('#tblEditorial').DataTable({
+    ajax:{url:'/Editorial/listar',dataSrc:''},
+    columns:[{data:'id'},{data:'editorial'},
+        {data:null,render:function(d){return d.estadoLabel==='Activo'?'<span class="badge badge-success">Activo</span>':'<span class="badge badge-danger">Inactivo</span>';}},
+        {data:null,render:function(d){
+            if(d.acciones==='editar,eliminar') return '<button class="btn btn-primary btn-sm" onclick="btnEd('+d.id+')"><i class="fa fa-pencil-square-o"></i></button> <button class="btn btn-danger btn-sm" onclick="btnDelEd('+d.id+')"><i class="fa fa-trash-o"></i></button>';
+            return '<button class="btn btn-success btn-sm" onclick="btnRestEd('+d.id+')"><i class="fa fa-reply-all"></i></button>';
+        }}]
+});
+function frmEditorial(){$('#titleEditorial').text('Nueva Editorial');$('#frmEditorial')[0].reset();$('#id_editorial').val('');$('#modal_editorial').modal('show');}
+function registrarEditorial(e){e.preventDefault();$.post('/Editorial/registrar',$('#frmEditorial').serialize(),function(r){swal(r.msg,'',r.icono);if(r.icono==='success'){$('#modal_editorial').modal('hide');tableEd.ajax.reload();}});}
+function btnEd(id){$.get('/Editorial/editar/'+id,function(d){$('#titleEditorial').text('Editar Editorial');$('#id_editorial').val(d.id);$('#editorialInput').val(d.editorial);$('#modal_editorial').modal('show');});}
+function btnDelEd(id){swal({title:'¿Dar de baja?',icon:'warning',buttons:true,dangerMode:true}).then(function(ok){if(ok)$.get('/Editorial/eliminar/'+id,function(r){swal(r.msg,'',r.icono);tableEd.ajax.reload();});});}
+function btnRestEd(id){$.get('/Editorial/reingresar/'+id,function(r){swal(r.msg,'',r.icono);tableEd.ajax.reload();});}
+</script>
+{% endblock %}

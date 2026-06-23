@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% block title %}Préstamos{% endblock %}
+{% block content %}
+<div class="app-title">
+    <div><h1><i class="fa fa-hourglass-start"></i> Préstamos</h1></div>
+    <div class="app-title-actions">
+        {% if session.get('id_usuario') == 1 %}
+        <button class="btn btn-primary mb-2" onclick="frmPrestamo()"><i class="fa fa-plus"></i> Nuevo</button>
+        {% endif %}
+        <button class="btn btn-sm btn-export btn-pdf mb-2" onclick="exportarReporte('pdf')"><i class="fa fa-file-pdf-o"></i> PDF</button>
+        <button class="btn btn-sm btn-export btn-excel mb-2" onclick="exportarReporte('excel')"><i class="fa fa-file-excel-o"></i> Excel</button>
+        <button class="btn btn-sm btn-export btn-word mb-2" onclick="exportarReporte('word')"><i class="fa fa-file-word-o"></i> Word</button>
+    </div>
+</div>
+
+<!-- Panel de Filtros -->
+<div class="row mb-3">
+    <div class="col-lg-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white" data-toggle="collapse" href="#collapseFiltrosPres" style="cursor: pointer;">
+                <h5 class="mb-0"><i class="fa fa-filter"></i> Filtros de Búsqueda <i class="fa fa-angle-down float-right"></i></h5>
+            </div>
+            <div id="collapseFiltrosPres" class="collapse show">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Estado</label>
+                                <select class="form-control" id="filtroPrestEstado">
+                                    <option value="">Todos</option>
+                                    <option value="1">Prestados</option>
+                                    <option value="2">Pendientes</option>
+                                    <option value="0">Entregados</option>
+                                    <option value="3">Rechazados</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Fecha Desde</label>
+                                <input type="date" class="form-control" id="filtroPrestDesde">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Fecha Hasta</label>
+                                <input type="date" class="form-control" id="filtroPrestHasta">
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-group w-100">
+                                <button class="btn btn-secondary mr-1" onclick="limpiarFiltrosPres()"><i class="fa fa-eraser"></i> Limpiar</button>
+                                <button class="btn btn-primary" onclick="aplicarFiltrosPres()"><i class="fa fa-search"></i> Filtrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row"><div class="col-lg-12"><div class="tile"><div class="tile-body">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="tblPrestamos">
+            <thead class="thead-dark">
+                <tr><th>Id</th><th>Estudiante</th><th>Libro</th><th>F. Préstamo</th><th>F. Devolución</th><th>Cant.</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div></div></div></div>
+
+<div id="modal_prestamo" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">Nuevo Préstamo</h5>
+                <button class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="frmPrestamo">
+                    <div class="row">
+                        {% if session['id_usuario'] == 1 %}
+                        <div class="col-md-6">
+                            <div class="form-group"><label>Estudiante</label>
+                                <select class="form-control estudiante" name="estudiante" id="estSelect" style="width: 100%;"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                        {% else %}
+                        <input type="hidden" name="estudiante" value="0">
+                        <div class="col-md-12">
+                            <div class="usuario-prestamo-banner mb-3">
+                                <div class="usuario-prestamo-avatar">
+                                    <i class="fa fa-user-circle"></i>
+                                </div>
+                                <div class="usuario-prestamo-info">
+                                    <span class="usuario-prestamo-label">Solicitante del préstamo</span>
+                                    <span class="usuario-prestamo-nombre">{{ session.get('nombre', 'Usuario') }}</span>
+                                </div>
+                                <div class="usuario-prestamo-badge">
+                                    <i class="fa fa-check-circle"></i> Sesión activa
+                                </div>
+                            </div>
+                        {% endif %}
+                            <div class="form-group"><label>Libro</label>
+                                <select class="form-control libro" name="libro" id="libroSelect" style="width: 100%;"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group"><label>Cantidad Disponible</label>
+                                <input class="form-control" type="number" id="cantDisponible" readonly></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group"><label>Cantidad a Prestar</label>
+                                <input class="form-control" type="number" name="cantidad" id="cantPrestamo" min="1"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group"><label>Fecha Préstamo</label>
+                                <input class="form-control" type="date" name="fecha_prestamo"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group"><label>Fecha Devolución</label>
+                                <input class="form-control" type="date" name="fecha_devolucion"></div>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Observación</label>
+                        <textarea class="form-control" name="observacion" rows="2"></textarea></div>
+                    <button class="btn btn-primary" type="button" onclick="registrarPrestamo(event)">Registrar</button>
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$('#estSelect, #libroSelect').attr('required', true);
+$('#cantPrestamo').attr({required:true, min:1, max:9999});
+$('input[name="fecha_prestamo"], input[name="fecha_devolucion"]').attr('required', true);
+var tablePrestamos = $('#tblPrestamos').DataTable({
+    ajax: { 
+        url: '/Prestamos/listar', 
+        dataSrc: '',
+        data: function(d) {
+            d.estado      = $('#filtroPrestEstado').val();
+            d.fecha_desde = $('#filtroPrestDesde').val();
+            d.fecha_hasta = $('#filtroPrestHasta').val();
+        }
+    },
+    columns: [
+        { data: 'pres_id' }, { data: 'est_nombre' }, { data: 'titulo' },
+        { data: 'fecha_prestamo' }, { data: 'fecha_devolucion' }, { data: 'cantidad' },
+        { data: null, render: function(d) {
+            if (d.estado===1) return '<span class="badge badge-warning">Prestado</span>';
+            if (d.estado===0) return '<span class="badge badge-success">Entregado</span>';
+            if (d.estado===2) return '<span class="badge badge-primary">Pendiente</span>';
+            if (d.estado===3) return '<span class="badge badge-danger">Rechazado</span>';
+            return '<span class="badge badge-secondary">Desconocido</span>';
+        }},
+        { data: null, render: function(d) {
+            var is_admin = {{ 'true' if session.get('id_usuario') == 1 or session.get('rol') in ('administrador', 'bibliotecario') else 'false' }};
+            var buttons = '';
+            
+            if (d.estado === 2 && is_admin) {
+                buttons += '<button class="btn btn-primary btn-sm mb-1" onclick="aprobarPrestamo('+d.pres_id+')"><i class="fa fa-thumbs-up"></i> Aprobar</button> ' +
+                           '<button class="btn btn-danger btn-sm mb-1" onclick="rechazarPrestamo('+d.pres_id+')"><i class="fa fa-times"></i> Rechazar</button> ';
+            } else if (d.estado === 1 && is_admin) {
+                buttons += '<button class="btn btn-success btn-sm mb-1" onclick="entregarLibro('+d.pres_id+')"><i class="fa fa-check"></i> Entregar</button> ';
+            }
+            
+            if (d.estado === 1 || d.estado === 0) {
+                buttons += '<button class="btn btn-info btn-sm mb-1" onclick="verTicked('+d.pres_id+')" title="Ticket"><i class="fa fa-ticket"></i></button>';
+            }
+            
+            return buttons;
+        }}
+    ]
+});
+
+function frmPrestamo() {
+    $('#frmPrestamo')[0].reset();
+    var hoy = new Date().toISOString().split('T')[0];
+    $('#estSelect').select2({ dropdownParent: $('#modal_prestamo'), ajax:{ url:'/Estudiantes/buscarEstudiante', data:function(p){ return {es:p.term}; }, processResults:function(d){ return {results:d}; } } });
+    $('#libroSelect').select2({ dropdownParent: $('#modal_prestamo'), ajax:{ url:'/Libros/buscarLibro', data:function(p){ return {lb:p.term}; }, processResults:function(d){ return {results:d}; } } });
+    $('input[name="fecha_prestamo"]').attr('min', hoy).val(hoy);
+    $('input[name="fecha_devolucion"]').attr('min', hoy);
+    $('#libroSelect').on('change', function() {
+        var id = $(this).val();
+        if(id) $.get('/Libros/verificar/'+id, function(r){ $('#cantDisponible').val(r.cantidad); });
+    });
+    $('#modal_prestamo').modal('show');
+}
+
+function registrarPrestamo(e) {
+    e.preventDefault();
+    if (!validarFormulario('#frmPrestamo')) return;
+    
+    var cant_req = parseInt($('#cantPrestamo').val());
+    var cant_disp = parseInt($('#cantDisponible').val());
+    if (isNaN(cant_req) || cant_req < 1) { 
+        swal('Ingresa una cantidad a prestar válida.', '', 'warning'); return; 
+    }
+    if (cant_req > cant_disp) { 
+        swal('No hay stock suficiente para realizar este préstamo.', '', 'warning'); return; 
+    }
+    
+    var f_prestamo = $('input[name="fecha_prestamo"]').val();
+    var f_devolucion = $('input[name="fecha_devolucion"]').val();
+    if (!f_prestamo || !f_devolucion) { 
+        swal('Ambas fechas (préstamo y devolución) son requeridas.', '', 'warning'); return; 
+    }
+    if (f_devolucion <= f_prestamo) { 
+        swal('La fecha de devolución debe ser después del día de préstamo.', '', 'warning'); return; 
+    }
+
+    $.post('/Prestamos/registrar', $('#frmPrestamo').serialize(), function(res) {
+        swal(res.msg,'',res.icono);
+        if(res.icono==='success'){ $('#modal_prestamo').modal('hide'); tablePrestamos.ajax.reload(); }
+    });
+}
+
+$('input[name="fecha_prestamo"]').on('change', function() {
+    var fechaPrestamo = $(this).val();
+    if (fechaPrestamo) {
+        $('input[name="fecha_devolucion"]').attr('min', fechaPrestamo);
+    }
+});
+
+function entregarLibro(id) {
+    swal({title:'¿Registrar entrega?',icon:'warning',buttons:true}).then(function(ok){
+        if(ok) $.get('/Prestamos/entregar/'+id, function(r){ swal(r.msg,'',r.icono); tablePrestamos.ajax.reload(); });
+    });
+}
+
+function verTicked(id) {
+    window.open('/Prestamos/ticket_pdf/' + id, '_blank');
+}
+
+function aprobarPrestamo(id) {
+    swal({title:'¿Aprobar solicitud de préstamo?', text: 'Se descontará el stock.', icon:'info', buttons:true}).then(function(ok){
+        if(ok) {
+            $.get('/Prestamos/aprobar/'+id, function(r){ 
+                swal(r.msg,'',r.icono); tablePrestamos.ajax.reload(); 
+            });
+        }
+    });
+}
+
+function rechazarPrestamo(id) {
+    swal({title:'¿Rechazar solicitud?', text: 'La solicitud será cancelada.', icon:'warning', buttons:true, dangerMode: true}).then(function(ok){
+        if(ok) {
+            $.get('/Prestamos/rechazar/'+id, function(r){ 
+                swal(r.msg,'',r.icono); tablePrestamos.ajax.reload(); 
+            });
+        }
+    });
+}
+
+function aplicarFiltrosPres() { tablePrestamos.ajax.reload(); }
+function limpiarFiltrosPres() {
+    $('#filtroPrestEstado').val('');
+    $('#filtroPrestDesde').val('');
+    $('#filtroPrestHasta').val('');
+    tablePrestamos.ajax.reload();
+}
+function exportarReporte(tipo) {
+    var params = new URLSearchParams();
+    var estado  = $('#filtroPrestEstado').val();
+    var desde   = $('#filtroPrestDesde').val();
+    var hasta   = $('#filtroPrestHasta').val();
+    if (estado) params.append('estado', estado);
+    if (desde)  params.append('fecha_desde', desde);
+    if (hasta)  params.append('fecha_hasta', hasta);
+    var url = '/Prestamos/' + tipo + (params.toString() ? '?' + params.toString() : '');
+    if (tipo === 'pdf') { window.open(url, '_blank'); }
+    else { window.location.href = url; }
+}
+</script>
+{% endblock %}

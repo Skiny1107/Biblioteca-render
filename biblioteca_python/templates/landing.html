@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliotech | Biblioteca Digital y Física</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/carousel-cards.css') }}">
+</head>
+<body>
+
+    <header class="top-nav">
+        <div class="container-header">
+            <div class="brand">
+                <i class="fas fa-book-reader logo-img" aria-hidden="true"></i>
+                <h1>Bibliotech</h1>
+            </div>
+            <nav class="menu" aria-label="Navegación principal">
+                <a href="#explorar">Catálogo</a>
+                <a href="#nosotros">Servicios</a>
+                <a href="#contacto">Contacto</a>
+                <a href="{{ url_for('login') }}" class="btn-solid">Iniciar Sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero-banner">
+        <div class="hero-poster">
+            <img src="{{ url_for('static', filename='img/hero.png', v='3') }}" alt="Banner principal de Bibliotech">
+        </div>
+    </section>
+
+    <main class="discovery-area" id="explorar">
+        <section class="catalog-search" aria-label="Buscador de libros Bibliotech">
+            <div class="search-panel">
+                <form class="search-form" id="catalogSearchForm">
+                    <input type="text" name="q" placeholder="Busca por palabra clave, tema, código o descripción..." class="main-input" aria-label="Búsqueda general">
+                    <button type="submit" class="search-trigger" aria-label="Buscar libros"><i class="fas fa-search"></i></button>
+                    <div class="advanced-search">
+                        <input type="text" name="titulo" placeholder="Título" aria-label="Filtrar por título">
+                        <input type="text" name="autor" placeholder="Autor" aria-label="Filtrar por autor">
+                        <select name="categoria" aria-label="Filtrar por categoría">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                        <input type="text" name="editorial" placeholder="Editorial" aria-label="Filtrar por editorial">
+                        <input type="number" name="anio" min="1400" max="2100" placeholder="Año" aria-label="Filtrar por año">
+                        <button type="button" class="clear-search" id="clearSearch">Limpiar</button>
+                    </div>
+                </form>
+            </div>
+            <div class="search-results" id="searchResults" aria-live="polite">
+                <div class="results-head">
+                    <h2>Recomendados para ti</h2>
+                    <span id="resultsCount">resultados de busqueda</span>
+                </div>
+                <div class="recommended-carousel">
+                    <button class="recommend-arrow recommend-arrow-left" type="button" id="recommendedPrev" aria-label="Libros anteriores">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="results-grid" id="resultsGrid"></div>
+                    <button class="recommend-arrow recommend-arrow-right" type="button" id="recommendedNext" aria-label="Libros siguientes">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="recommend-dots" id="recommendedDots" aria-hidden="true"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="main-grid-layout">
+            
+            <div class="recommended-side">
+                <h3 class="section-mini-title">Novedades de Bibliotech</h3>
+                <div class="categories-grid">
+                    <button class="books-arrow books-arrow-left" type="button" aria-label="Anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=520&q=82" alt="Lecturas recomendadas" loading="lazy">
+                        <div class="cat-label">Lecturas recomendadas para nuevos usuarios</div>
+                        <a href="#explorar" class="cat-action" data-query="lectura">Ver más</a>
+                    </div>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=520&q=82" alt="Colección juvenil" loading="lazy">
+                        <div class="cat-label">Colección juvenil Bibliotech</div>
+                        <a href="#explorar" class="cat-action" data-category="Infantil y juvenil">Ver más</a>
+                    </div>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=520&q=82" alt="Investigación académica" loading="lazy">
+                        <div class="cat-label">Guías de investigación académica</div>
+                        <a href="#explorar" class="cat-action" data-category="Investigación">Ver más</a>
+                    </div>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=520&q=82" alt="Literatura universal" loading="lazy">
+                        <div class="cat-label">Clásicos disponibles en sala</div>
+                        <a href="#explorar" class="cat-action" data-category="Literatura">Ver más</a>
+                    </div>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=520&q=82" alt="Recursos digitales" loading="lazy">
+                        <div class="cat-label">Recursos bibliograficos para aprender</div>
+                        <a href="#explorar" class="cat-action" data-category="Tecnología">Ver más</a>
+                    </div>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=520&q=82" alt="Historia y sociedad" loading="lazy">
+                        <div class="cat-label">Historia, sociedad y pensamiento crítico</div>
+                        <a href="#explorar" class="cat-action" data-category="Historia y sociedad">Ver más</a>
+                    </div>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=520&q=82" alt="Bienestar y estudio" loading="lazy">
+                        <div class="cat-label">Bienestar, hábitos y aprendizaje</div>
+                        <a href="#explorar" class="cat-action" data-category="Bienestar">Ver más</a>
+                    </div>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=520&q=82" alt="Novedades literarias" loading="lazy">
+                        <div class="cat-label">Nuevas novelas y cuentos del catálogo</div>
+                        <a href="#explorar" class="cat-action" data-query="novela">Ver más</a>
+                    </div>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=520&q=82" alt="Programación y tecnología" loading="lazy">
+                        <div class="cat-label">Programación, datos y cultura digital</div>
+                        <a href="#explorar" class="cat-action" data-query="programación">Ver más</a>
+                    </div>
+                    <div class="cat-card">
+                        <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=520&q=82" alt="Investigación y fuentes" loading="lazy">
+                        <div class="cat-label">Fuentes, citas y metodología académica</div>
+                        <a href="#explorar" class="cat-action" data-query="metodología">Ver más</a>
+                    </div>
+                    <button class="books-arrow books-arrow-right" type="button" aria-label="Siguiente">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="books-dots" aria-hidden="true"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="quick-links-bar">
+            <div class="link-item"><i class="fas fa-calendar-alt"></i> Actividades Bibliotech</div>
+            <div class="link-item"><i class="fas fa-microphone"></i> Noticias de la biblioteca</div>
+            <div class="link-item"><i class="fas fa-leaf"></i> Recursos para la comunidad</div>
+        </div>
+
+        <section class="feature-carousel" id="nosotros" aria-label="Actividades destacadas">
+            <div class="feature-slide slide-one">
+                <div class="feature-art">
+                    <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=760&q=84" alt="Biblioteca con libros" loading="lazy">
+                    <span class="art-orbit"></span>
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="feature-copy">
+                    <span>Bienvenidas y bienvenidos a</span>
+                    <h2>Bibliotech</h2>
+                    <p>Explora libros, recursos bibliograficos, eventos y servicios pensados para tu aprendizaje.</p>
+                </div>
+            </div>
+            <div class="feature-slide slide-two">
+                <div class="feature-art">
+                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=760&q=84" alt="Personas aprendiendo juntas" loading="lazy">
+                    <span class="art-orbit"></span>
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="feature-copy">
+                    <span>Agenda Bibliotech</span>
+                    <h2>Clubes de lectura</h2>
+                    <p>Participa en talleres, conversaciones literarias y espacios de lectura compartida.</p>
+                </div>
+            </div>
+            <div class="feature-slide slide-three">
+                <div class="feature-art">
+                    <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=760&q=84" alt="Estudiantes consultando recursos" loading="lazy">
+                    <span class="art-orbit"></span>
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="feature-copy">
+                    <span>Biblioteca digital</span>
+                    <h2>Aprende a tu ritmo</h2>
+                    <p>Consulta materiales académicos, guías, bases de datos y novedades seleccionadas para ti.</p>
+                </div>
+            </div>
+            <div class="feature-dots" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </section>
+
+        <div class="books-section">
+            <div class="heading-group">
+                <h2>Colecciones recomendadas de Bibliotech</h2>
+                <p>Conoce selecciones creadas por Bibliotech para lectura, estudio e investigación</p>
+            </div>
+
+            <div class="book-slider">
+                <div class="card featured-card">
+                    <div class="card-img-box">
+                        <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=720&q=84" alt="Colección de literatura" loading="lazy">
+                    </div>
+                    <div class="card-detail">
+                        <h3>Literatura para descubrir</h3>
+                        <p>Una selección de novelas, cuentos y poesía para disfrutar nuevas voces desde Bibliotech.</p>
+                    </div>
+                </div>
+                <div class="card featured-card">
+                    <div class="card-img-box">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=720&q=84" alt="Mediación de lectura" loading="lazy">
+                    </div>
+                    <div class="card-detail">
+                        <h3>Mediación y formación lectora</h3>
+                        <p>Material audiovisual, charlas y recursos para fortalecer hábitos de lectura en la comunidad.</p>
+                    </div>
+                </div>
+                <div class="card featured-card">
+                    <div class="card-img-box">
+                        <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=720&q=84" alt="Lectura en familia y comunidad" loading="lazy">
+                    </div>
+                    <div class="card-detail">
+                        <h3>Lecturas para compartir en familia</h3>
+                        <p>Libros y recursos recomendados para leer en casa, conversar y crear momentos de aprendizaje.</p>
+                    </div>
+                </div>
+                <div class="card featured-card">
+                    <div class="card-img-box">
+                        <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=720&q=84" alt="Tecnología y cultura digital" loading="lazy">
+                    </div>
+                    <div class="card-detail">
+                        <h3>Tecnología, cultura digital y aprendizaje</h3>
+                        <p>Contenidos de Bibliotech para explorar innovación, habilidades digitales y nuevas formas de aprender.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mini-footer" id="contacto">
+        <div class="footer-info">
+            <div>
+                <h3>Biblioteca física Bibliotech</h3>
+                <p>Atención presencial, préstamo de material, salas de lectura y orientación para usuarios.</p>
+            </div>
+            <div>
+                <h4>Horario de atención</h4>
+                <p>Lunes a viernes: 8:00 a. m. - 6:00 p. m.<br>Sábados: 9:00 a. m. - 1:00 p. m.</p>
+            </div>
+            <div>
+                <h4>Datos de contacto</h4>
+                <p>Centro de recursos Bibliotech<br>contacto@bibliotech.edu.co</p>
+            </div>
+        </div>
+        <p>&copy; 2026 Bibliotech • Biblioteca física y digital para la comunidad</p>
+    </footer>
+
+    <section class="tech-chat" aria-label="Asistente virtual Tech">
+        <button class="tech-chat-toggle" type="button" aria-label="Abrir chat de Tech" aria-expanded="false">
+            <i class="fas fa-comments"></i>
+            <span>Tech</span>
+        </button>
+
+        <div class="tech-chat-panel" aria-live="polite">
+            <div class="tech-chat-header">
+                <div class="tech-avatar" aria-hidden="true">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h2>Tech</h2>
+                    <p>Asistente de Bibliotech</p>
+                </div>
+                <button class="tech-close" type="button" aria-label="Cerrar chat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="tech-chat-messages" id="techMessages">
+                <div class="tech-message bot">
+                    <p>¡Hola! Soy Tech. Pregúntame por horarios, catálogo, préstamos o servicios.</p>
+                </div>
+            </div>
+
+            <div class="tech-suggestions" id="techSuggestions">
+                <button type="button">Horario</button>
+                <button type="button">Catálogo</button>
+                <button type="button">Préstamos</button>
+            </div>
+
+            <form class="tech-chat-form" id="techChatForm">
+                <input type="text" id="techInput" autocomplete="off" placeholder="Escribe tu pregunta..." aria-label="Mensaje para Tech">
+                <button type="submit" aria-label="Enviar mensaje">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+
+</body>
+</html>

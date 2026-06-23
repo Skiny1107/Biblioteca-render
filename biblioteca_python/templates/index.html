@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar Sesión | Sistema Biblioteca</title>
+    <meta name="description" content="Sistema de gestión de biblioteca - Inicia sesión o regístrate para acceder a libros, autores, categorías y préstamos.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-overrides.css', v='20260407b') }}">
+    <style>
+        /* Ajustes de color para Login/Landing */
+        .material-half-bg .cover { background-color: #060b14 !important; }
+        .btn-primary { background-color: #060b14 !important; border-color: #060b14 !important; }
+        .btn-success { 
+            background-color: #FFD700 !important; 
+            color: #060b14 !important; 
+            border-color: #FFD700 !important; 
+            font-weight: 700;
+        }
+        /* Indicador de requisitos de contraseña */
+        .pwd-requirements {
+            margin-top: 8px;
+            padding: 10px 14px;
+            background: rgba(200,169,110,.05);
+            border: 1px solid rgba(200,169,110,.15);
+            border-radius: 10px;
+            font-size: .78rem;
+            display: none;
+        }
+        .pwd-requirements.visible { display: block; }
+        .pwd-req-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 2px 0;
+            color: rgba(168,152,120,.7);
+            font-family: 'Crimson Pro', serif;
+            transition: color .25s ease;
+        }
+        .pwd-req-item .req-icon { font-size: .9rem; width: 16px; text-align: center; }
+        .pwd-req-item.ok { color: #81c784; }
+        .pwd-req-item.ok .req-icon::before { content: '✓'; }
+        .pwd-req-item:not(.ok) .req-icon::before { content: '○'; }
+        .pwd-strength-bar {
+            height: 3px;
+            border-radius: 2px;
+            margin-top: 8px;
+            background: rgba(255,255,255,.07);
+            overflow: hidden;
+        }
+        .pwd-strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            width: 0;
+            transition: width .4s ease, background .4s ease;
+        }
+    </style>
+</head>
+<body>
+    <section class="material-half-bg">
+        <div class="cover"></div>
+    </section>
+    <section class="login-content">
+        <div class="logo">
+            <h1>Biblioteca</h1>
+        </div>
+        <div class="login-box">
+            <form class="login-form" id="frmLogin" onsubmit="frmLogin(event);">
+                <h3 class="login-head"><i class="fa fa-lg fa-fw fa-user"></i>Iniciar Sesión</h3>
+                <div class="form-group">
+                    <label class="control-label">USUARIO</label>
+                    <input class="form-control" type="text" placeholder="Usuario" id="usuario" name="usuario" autofocus required minlength="3" maxlength="20" pattern="[A-Za-z0-9_-]{3,20}">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">CONTRASEÑA</label>
+                    <input class="form-control" type="password" placeholder="Contraseña" id="clave" name="clave" required>
+                </div>
+                <div class="alert alert-danger d-none" role="alert" id="alerta"></div>
+                <div class="form-group btn-container">
+                    <button class="btn btn-primary btn-block" type="submit">
+                        <i class="fa fa-sign-in fa-lg fa-fw"></i>Login
+                    </button>
+                    <button class="btn btn-secondary btn-block mt-2" type="button" onclick="toggleRegistro()">
+                        <i class="fa fa-user-plus fa-lg fa-fw"></i>Registrar Cuenta
+                    </button>
+                </div>
+            </form>
+
+            <form class="login-form d-none" id="frmRegistro" onsubmit="frmRegistroPub(event);">
+                <h3 class="login-head" style="margin-bottom: 20px;"><i class="fa fa-lg fa-fw fa-user-plus"></i>Crear Cuenta</h3>
+                <div class="form-group">
+                    <label class="control-label">USUARIO</label>
+                    <input class="form-control" type="text" placeholder="Ej: juan123" id="reg_usuario" name="usuario" autocomplete="username" required minlength="3" maxlength="20">
+                    <small style="color:rgba(168,152,120,.6);font-size:.75rem;margin-top:4px;display:block;">Solo letras, números, guiones ( 3-20 caracteres )</small>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">NOMBRE COMPLETO</label>
+                    <input class="form-control" type="text" placeholder="Tu nombre completo" id="reg_nombre" name="nombre" autocomplete="name" required minlength="3" maxlength="100" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s.'-]{3,100}">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">CONTRASEÑA</label>
+                    <input class="form-control" type="password" placeholder="Mín. 8 caracteres" id="reg_clave" name="clave" autocomplete="new-password" required>
+                    <div class="pwd-strength-bar"><div class="pwd-strength-fill" id="pwdStrengthFill"></div></div>
+                    <div class="pwd-requirements" id="pwdRequirements">
+                        <div class="pwd-req-item" id="req-len"><span class="req-icon"></span> Mínimo 8 caracteres</div>
+                        <div class="pwd-req-item" id="req-upper"><span class="req-icon"></span> Al menos una MAYÚSCULA</div>
+                        <div class="pwd-req-item" id="req-lower"><span class="req-icon"></span> Al menos una minúscula</div>
+                        <div class="pwd-req-item" id="req-num"><span class="req-icon"></span> Al menos un número</div>
+                        <div class="pwd-req-item" id="req-special"><span class="req-icon"></span> Un carácter especial ( !@#$%&* )</div>
+                    </div>
+                </div>
+                <div class="form-group btn-container mt-4">
+                    <button class="btn btn-success btn-block" type="submit" id="btnRegistrar">
+                        <i class="fa fa-check fa-lg fa-fw"></i>Crear Cuenta
+                    </button>
+                    <button class="btn btn-secondary btn-block mt-2" type="button" onclick="toggleRegistro()">
+                        <i class="fa fa-arrow-left fa-lg fa-fw"></i>Volver al Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pace.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sweetalert.min.js') }}"></script>
+    <script>
+        const base_url = '/';
+        function mostrarAlerta(msg, icono) {
+            return swal(msg, '', icono || 'info');
+        }
+
+        function validarFormulario(formSelector) {
+            var form = typeof formSelector === 'string' ? document.querySelector(formSelector) : formSelector;
+            if (!form) return true;
+            if (!form.checkValidity()) {
+                var invalidField = form.querySelector(':invalid');
+                if (invalidField) {
+                    invalidField.focus();
+                    invalidField.reportValidity();
+                    var label = '';
+                    var formGroup = invalidField.closest('.form-group');
+                    if (formGroup) {
+                        var labelEl = formGroup.querySelector('label');
+                        if (labelEl) {
+                            label = labelEl.textContent.trim().replace(/\s+/g, ' ');
+                        }
+                    }
+                    var validationMessage = invalidField.validationMessage || 'Revisa este campo';
+                    mostrarAlerta(label ? (label + ': ' + validationMessage) : validationMessage, 'warning');
+                } else {
+                    form.reportValidity();
+                    mostrarAlerta('Revisa los campos del formulario', 'warning');
+                }
+                return false;
+            }
+            return true;
+        }
+
+        function extraerMensajeError(xhr) {
+            var data = xhr && xhr.responseJSON ? xhr.responseJSON : {};
+            return {
+                msg: data.msg || data.error || (xhr && xhr.status === 0 ? 'No se pudo conectar con el servidor' : 'Revisa los datos e intenta de nuevo'),
+                icono: data.icono || ((xhr && xhr.status >= 400 && xhr.status < 500) ? 'warning' : 'error')
+            };
+        }
+
+        $.ajaxSetup({
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        // ── Validador de contraseña en tiempo real ─────────────────
+        document.addEventListener('DOMContentLoaded', function() {
+            var pwdInput = document.getElementById('reg_clave');
+            if (!pwdInput) return;
+            document.getElementById('reg_usuario').setAttribute('pattern', '[A-Za-z0-9_-]{3,20}');
+            document.getElementById('reg_clave').setAttribute('minlength', '8');
+            document.getElementById('reg_nombre').setAttribute('pattern', "[A-Za-zÁÉÍÓÚáéíóúÑñ\\s.'-]{3,100}");
+
+            document.getElementById('reg_nombre').addEventListener('input', function() {
+                if (/[0-9]/.test(this.value)) {
+                    this.setCustomValidity('El nombre no puede tener numeros');
+                } else if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s.'-]{3,100}$/.test(this.value.trim())) {
+                    this.setCustomValidity('El nombre debe tener solo letras y espacios');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+
+            pwdInput.addEventListener('focus', function() {
+                document.getElementById('pwdRequirements').classList.add('visible');
+            });
+
+            pwdInput.addEventListener('input', function() {
+                var pwd = this.value;
+                var checks = {
+                    'req-len':     pwd.length >= 8,
+                    'req-upper':   /[A-Z]/.test(pwd),
+                    'req-lower':   /[a-z]/.test(pwd),
+                    'req-num':     /[0-9]/.test(pwd),
+                    'req-special': /[!@#$%^&*(),.?":{}|<>]/.test(pwd)
+                };
+                var passed = 0;
+                for (var id in checks) {
+                    var el = document.getElementById(id);
+                    if (checks[id]) { el.classList.add('ok'); passed++; }
+                    else { el.classList.remove('ok'); }
+                }
+                // Barra de fortaleza
+                var fill = document.getElementById('pwdStrengthFill');
+                var pct = (passed / 5) * 100;
+                fill.style.width = pct + '%';
+                var colors = ['#e05555','#e05555','#e8a030','#c8a96e','#81c784','#4caf50'];
+                fill.style.background = colors[passed] || '#e05555';
+            });
+        });
+
+        function toggleRegistro() {
+            $('#frmLogin').toggleClass('d-none');
+            $('#frmRegistro').toggleClass('d-none');
+            if ($('#frmRegistro').hasClass('d-none')) {
+                $('.login-box').css({'min-height': '390px', 'height': 'auto'});
+                document.getElementById('pwdRequirements').classList.remove('visible');
+            } else {
+                $('.login-box').css({'min-height': 'auto', 'height': 'auto'});
+            }
+        }
+
+        function frmLogin(e) {
+            e.preventDefault();
+            if (!validarFormulario('#frmLogin')) return;
+            var $btn = $(e.target).find('[type=submit]');
+            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Ingresando...');
+            $.post('/Usuarios/validar', {
+                usuario: $('#usuario').val(),
+                clave: $('#clave').val()
+            }, function(res) {
+                if (res.icono === 'success') {
+                    window.location.href = res.url || '/Configuracion/admin';
+                } else {
+                    mostrarAlerta(res.msg, res.icono);
+                    $btn.prop('disabled', false).html('<i class="fa fa-sign-in fa-lg fa-fw"></i>Login');
+                }
+            }).fail(function(xhr) {
+                var err = extraerMensajeError(xhr);
+                mostrarAlerta(err.msg, err.icono);
+                $btn.prop('disabled', false).html('<i class="fa fa-sign-in fa-lg fa-fw"></i>Login');
+            });
+        }
+
+        function frmRegistroPub(e) {
+            e.preventDefault();
+            $('#reg_clave').attr('minlength', 8);
+            if (!validarFormulario('#frmRegistro')) return;
+            var $btn = $('#btnRegistrar');
+            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Creando cuenta...');
+            $.post('/Usuarios/registro_publico', $('#frmRegistro').serialize(), function(res) {
+                if (res.icono === 'success') {
+                    swal(res.msg, 'Serás redirigido al catálogo de libros...', res.icono);
+                    setTimeout(function() {
+                        window.location.href = res.url || '/Libros/';
+                    }, 1800);
+                } else {
+                    mostrarAlerta(res.msg, res.icono);
+                    $btn.prop('disabled', false).html('<i class="fa fa-check fa-lg fa-fw"></i>Crear Cuenta');
+                }
+            }).fail(function(xhr) {
+                var err = extraerMensajeError(xhr);
+                mostrarAlerta(err.msg, err.icono);
+                $btn.prop('disabled', false).html('<i class="fa fa-check fa-lg fa-fw"></i>Crear Cuenta');
+            });
+        }
+    </script>
+</body>
+</html>

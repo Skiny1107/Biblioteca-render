@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Biblioteca{% endblock %}</title>
+
+    <style>
+        /* ======= FONDO DESENFOCADO VIVO ======= */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ff7b00, #ff006e, #8338ec, #3a86ff);
+            background-size: 300% 300%;
+            animation: mover 12s ease infinite;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes mover {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ======= NAVBAR GLASSMORPHISM ======= */
+        header {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            color: white;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        nav a {
+            color: white;
+            margin: 0 20px;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ======= TARJETA CENTRAL ======= */
+        .container {
+            width: 80%;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border-radius: 15px;
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
+            color: #fff;
+        }
+
+        h2 {
+            border-bottom: 2px solid rgba(255,255,255,0.5);
+            padding-bottom: 10px;
+        }
+
+        ul li {
+            background: rgba(255,255,255,0.35);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Biblioteca Virtual</h1>
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/prestamos">Préstamos</a>
+        <a href="/prestamos/hoy">Préstamos de Hoy</a>
+        <a href="/usuarios">Usuarios</a>
+        <a href="/usuarios/111">Usuario 111</a>
+    </nav>
+</header>
+
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<footer>
+    Biblioteca Virtual © 2025
+</footer>
+
+</body>
+</html>

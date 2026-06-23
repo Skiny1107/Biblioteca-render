@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Sistema Biblioteca{% endblock %}</title>
+    <!-- CSS del proyecto original (copiados de Assets/) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/datatables.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/select2.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/space-theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-overrides.css', v='20260407b') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="app sidebar-mini">
+
+    <!-- Navbar -->
+    <header class="app-header">
+        <a class="app-header__logo" href="{{ url_for('configuracion.admin') }}">Biblioteca</a>
+        <a class="app-sidebar__toggle" href="#" data-toggle="sidebar" aria-label="Hide Sidebar"></a>
+        <ul class="app-nav">
+            <!-- Notificaciones -->
+            <li class="dropdown">
+                <a class="app-nav__item" href="#" data-toggle="dropdown" aria-label="Notificaciones">
+                    <i class="fa fa-bell-o fa-lg"></i>
+                </a>
+                <ul class="app-notification dropdown-menu dropdown-menu-right">
+                    <li class="app-notification__title">Libros no entregados.</li>
+                    <div class="app-notification__content">
+                        <li id="nombre_estudiante"></li>
+                    </div>
+                    <li class="app-notification__footer">
+                        <a href="{{ url_for('prestamos.pdf') }}" target="_blank">Generar Reporte.</a>
+                    </li>
+                </ul>
+            </li>
+            <!-- Usuario -->
+            <li class="dropdown">
+                <a class="app-nav__item" href="#" data-toggle="dropdown">
+                    <i class="fa fa-user fa-lg"></i>
+                </a>
+                <ul class="dropdown-menu settings-menu dropdown-menu-right">
+                    <li><a class="dropdown-item" href="#" id="modalPass"><i class="fa fa-user fa-lg"></i> Perfil</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('usuarios.salir') }}"><i class="fa fa-sign-out fa-lg"></i> Salir</a></li>
+                </ul>
+            </li>
+        </ul>
+    </header>
+
+    <!-- Sidebar -->
+    <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+    <aside class="app-sidebar">
+        <div class="app-sidebar__user">
+            <div>
+                <p class="app-sidebar__user-name">{{ session.get('nombre', '') }}</p>
+                <p class="app-sidebar__user-designation">{{ session.get('usuario', '') }}</p>
+            </div>
+        </div>
+        <ul class="app-menu">
+            <li><a class="app-menu__item" href="{{ url_for('prestamos.index') }}">
+                <i class="app-menu__icon fa fa-hourglass-start"></i>
+                <span class="app-menu__label">Prestamos</span></a></li>
+
+            <li><a class="app-menu__item" href="{{ url_for('materia.index') }}">
+                <i class="app-menu__icon fa fa-list-alt"></i>
+                <span class="app-menu__label">Categorias</span></a></li>
+
+            <li class="treeview">
+                <a class="app-menu__item" href="#" data-toggle="treeview">
+                    <i class="app-menu__icon fa fa-list"></i>
+                    <span class="app-menu__label">Libros</span>
+                    <i class="treeview-indicator fa fa-angle-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    <li><a class="treeview-item" href="{{ url_for('autor.index') }}"><i class="icon fa fa-address-book-o"></i> Autor</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('editorial.index') }}"><i class="icon fa fa-tags"></i> Editorial</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('libros.index') }}"><i class="icon fa fa-book"></i> Libros</a></li>
+                </ul>
+            </li>
+
+            <li><a class="app-menu__item" href="{{ url_for('estudiantes.index') }}">
+                <i class="app-menu__icon fa fa-users"></i>
+                <span class="app-menu__label">Estudiantes</span></a></li>
+
+            <li class="treeview">
+                <a class="app-menu__item" href="#" data-toggle="treeview">
+                    <i class="app-menu__icon fa fa-wrench"></i>
+                    <span class="app-menu__label">Administración</span>
+                    <i class="treeview-indicator fa fa-angle-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    <li><a class="treeview-item" href="{{ url_for('usuarios.index') }}"><i class="icon fa fa-user-o"></i> Usuarios</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('configuracion.index') }}"><i class="icon fa fa-cogs"></i> Configuración</a></li>
+                </ul>
+            </li>
+
+            <li class="treeview">
+                <a class="app-menu__item" href="#" data-toggle="treeview">
+                    <i class="app-menu__icon fa fa-file-text"></i>
+                    <span class="app-menu__label">Reportes</span>
+                    <i class="treeview-indicator fa fa-angle-right"></i>
+                </a>
+                <ul class="treeview-menu">
+                    <li><a class="treeview-item" href="{{ url_for('prestamos.pdf') }}" target="_blank">
+                        <i class="icon fa fa-file-pdf-o"></i> Libros Prestados</a></li>
+                </ul>
+            </li>
+            <li class="app-menu__item" style="margin-top: 1rem; border-top:1px solid rgba(255,255,255,.15); padding-top:.8rem;">
+                <a class="app-menu__item" href="{{ url_for('usuarios.salir') }}" style="color:#f8d7da; font-weight:700;">
+                    <i class="app-menu__icon fa fa-sign-out"></i>
+                    <span class="app-menu__label">Cerrar Sesión</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="app-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer / Modals -->
+    <!-- Modal cambiar contraseña -->
+    <div class="modal fade" id="modalCambiarPass" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cambiar Contraseña</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Contraseña Actual</label>
+                        <input type="password" class="form-control" id="clave_actual" name="clave_actual">
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="clave_nueva" name="clave_nueva">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="cambiarPass(event)">Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pace.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/select2.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sweetalert.min.js') }}"></script>
+    <script>
+        const base_url = '/';
+        // Verificar libros no entregados al cargar
+        $.get('/Configuracion/verificar', function(data) {
+            var html = '';
+            if (data.length > 0) {
+                data.forEach(function(item) {
+                    html += '<a class="app-notification__item" href="#">' +
+                        '<span class="app-notification__message">' + item.est_nombre + ' - ' + item.titulo + '</span>' +
+                        '<span class="app-notification__meta">' + item.fecha_devolucion + '</span></a>';
+                });
+            } else {
+                html = '<p class="text-center p-2">Sin pendientes</p>';
+            }
+            $('#nombre_estudiante').html(html);
+        });
+        // Abrir modal perfil
+        $('#modalPass').click(function() {
+            $('#modalCambiarPass').modal('show');
+        });
+        function cambiarPass(e) {
+            e.preventDefault();
+            $.post('/Usuarios/cambiarPas', {
+                clave_actual: $('#clave_actual').val(),
+                clave_nueva: $('#clave_nueva').val()
+            }, function(res) {
+                swal(res.msg, '', res.icono);
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

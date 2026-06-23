@@ -1,0 +1,318 @@
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                   ║
+║                   📇 QUICK REFERENCE CARD - TARJETA RÁPIDA                        ║
+║                                                                                   ║
+║                    Imprime esto y ten a la vista mientras trabajas                 ║
+║                                                                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ EN CASO DE EMERGENCIA 🆘
+═══════════════════════════════════════════════════════════════════════════════════
+
+Problema                          Solución
+─────────────────────────────────────────────────────────────────────────────────
+❌ "No puedo acceder"             Verifica: http://127.0.0.1:5000
+❌ "Page not found"               Ejecuta: python biblioteca_python\app.py
+❌ "MySQL error"                  Abre XAMPP, click Start en MySQL
+❌ "Puerto 3306 ocupado"          Ver: PUERTO_3306_OCUPADO.md
+❌ "Username/Password incorrecto" Usuario: admin | Password: Admin123456
+❌ "Comando no reconocido"        Ver: ERRORES_CORREGIDOS.txt
+❌ "No se conecta a BD"           Verifica .env: DB_HOST=127.0.0.1, DB_PORT=3306
+❌ "No veo datos de BD"           Espera a que setup_simple.py termine
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ 3 PASOS PRINCIPALES
+═══════════════════════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 1️⃣  ABRE XAMPP                                                                 │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • Busca "XAMPP Control Panel"                                                │
+│ • Haz click en MySQL [Start]                                                │
+│ • Espera a que diga "Running"                                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 2️⃣  EJECUTA SETUP                                                               │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • Doble click en: START_CLASICO.bat                                         │
+│ • O PowerShell: powershell -ExecutionPolicy Bypass -File START_CLASICO.ps1  │
+│ • Espera a: ✅ SETUP COMPLETADO EXITOSAMENTE                               │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 3️⃣  INICIA APLICACIÓN                                                         │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ • PowerShell: cd c:\Users\User\mi_entorno\Scripts\biblioteca                │
+│ • Ejecuta: python biblioteca_python\app.py                                  │
+│ • Verás: "Running on http://127.0.0.1:5000"                                 │
+│ • Abre: http://127.0.0.1:5000 en navegador                                  │
+│ • Login: admin / Admin123456                                                │
+│ • ¡LISTO! 🎉                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ INFORMACIÓN CRÍTICA
+═══════════════════════════════════════════════════════════════════════════════════
+
+APLICACIÓN:
+  URL:      http://127.0.0.1:5000
+  Usuario:  admin
+  Password: Admin123456
+  Docs:     http://127.0.0.1:5000/apidocs
+  Health:   http://127.0.0.1:5000/health
+
+BASE DE DATOS:
+  Host:     127.0.0.1
+  Port:     3306
+  User:     root
+  Password: (ninguna)
+  Base:     biblioteca
+  Motor:    MySQL
+
+CARPETA:
+  Principal: c:\Users\User\mi_entorno\Scripts\biblioteca\
+  App:       biblioteca_python/
+  Logs:      logs/
+  Config:    .env
+
+ARCHIVOS CLAVE:
+  Setup:     START_CLASICO.bat
+  App:       app.py
+  Config:    .env (NO EDITAR)
+  BD:        biblioteca.sql
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ COMANDOS CORRECTOS E INCORRECTOS
+═══════════════════════════════════════════════════════════════════════════════════
+
+CORRECTO vs INCORRECTO:
+
+❌ python app.py
+✅ python biblioteca_python\app.py
+
+❌ python [admin.py]
+✅ python admin.py
+
+❌ python manage.py runserver
+✅ python biblioteca_python\app.py
+
+❌ python biblioteca_python/setup_simple.py (diagonal al revés)
+✅ python biblioteca_python\setup_simple.py (diagonal correcta)
+
+❌ cd /home/...
+✅ cd c:\Users\User\mi_entorno\Scripts\biblioteca\
+
+❌ http://localhost:5000
+✅ http://127.0.0.1:5000
+
+❌ DB_HOST=localhost
+✅ DB_HOST=127.0.0.1
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ ESTRUCTURA EN 10 SEGUNDOS
+═══════════════════════════════════════════════════════════════════════════════════
+
+         [TÚ] → [Navegador] → [Flask:5000] → [MySQL:3306]
+
+         http://127.0.0.1:5000  ← Aquí accedes
+                    ↓
+              app.py (en biblioteca_python/)
+                    ↓
+           database.py (conexión MySQL)
+                    ↓
+          Base de datos: biblioteca
+                    ↓
+           Tablas: usuarios, libros, autores, etc
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ CHECKLIST DE VERIFICACIÓN
+═══════════════════════════════════════════════════════════════════════════════════
+
+ANTES DE EMPEZAR:
+  ☐ XAMPP está instalado
+  ☐ XAMPP Control Panel abierto
+  ☐ MySQL está en Running
+
+DESPUÉS DE SETUP:
+  ☐ Ver: ✅ SETUP COMPLETADO EXITOSAMENTE
+  ☐ Carpeta logs/ existe
+  ☐ Carpeta uploads/ existe
+  ☐ Carpeta temp/ existe
+  ☐ Archivo .env editado con 127.0.0.1
+
+CUANDO INICIA APP:
+  ☐ Ver: "Running on http://127.0.0.1:5000"
+  ☐ NO hay rojo en pantalla
+  ☐ Puedo acceder a http://127.0.0.1:5000
+
+EN LA APLICACIÓN:
+  ☐ Veo página de login
+  ☐ Puedo entrar con admin/Admin123456
+  ☐ Veo dashboard
+  ☐ Puedo ver libros, autores, etc
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ ARCHIVOS PARA LEER (En orden de importancia)
+═══════════════════════════════════════════════════════════════════════════════════
+
+⭐ PRIMERO:   PROXIMO_PASO.txt (guía visual paso-a-paso)
+⭐ SEGUNDO:   EMPIEZA_AQUI.txt (setup rápido 5 minutos)
+⭐ TERCERO:   LISTO_CLASICO.txt (setup manual visual)
+📖 CUARTO:    CONFIGURACION_ESTANDAR.md (configuración detallada)
+📖 QUINTO:    MAPA_MENTAL.txt (cómo funciona todo)
+🔧 SEXTO:     ERRORES_CORREGIDOS.txt (errores comunes)
+💾 SÉPTIMO:   README.md (documentación técnica)
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ TABLA RÁPIDA DE PUERTOS
+═══════════════════════════════════════════════════════════════════════════════════
+
+Servicio              Puerto    Dirección                 Estado
+─────────────────────────────────────────────────────────────────────────────
+Flask (Aplicación)    5000      http://127.0.0.1:5000    ✓ LOCAL
+MySQL (Base Datos)    3306      127.0.0.1:3306           ✓ XAMPP
+Gunicorn (Prod)       8000      http://127.0.0.1:8000    (Opcional)
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ TABLA RÁPIDA DE RUTAS
+═══════════════════════════════════════════════════════════════════════════════════
+
+Ruta                           Función                    Requiere Login
+─────────────────────────────────────────────────────────────────────────────
+http://127.0.0.1:5000/         Dashboard principal       ✓ Sí
+http://127.0.0.1:5000/login    Página de login           ✗ No
+/usuarios/validar              Login (POST)              ✗ No
+/libros                        Ver libros                ✓ Sí
+/autores                       Ver autores               ✓ Sí
+/prestamos                     Ver préstamos             ✓ Sí
+/estudiantes                   Ver estudiantes           ✓ Sí
+/apidocs                       Documentación Swagger     ✓ Sí
+/health                        Estado de salud           ✗ No
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ TABLA RÁPIDA DE ARCHIVOS
+═══════════════════════════════════════════════════════════════════════════════════
+
+Archivo                  Tipo      Modificar    Propósito
+─────────────────────────────────────────────────────────────────────────────
+.env                     Config    ✗ NO         Configuración (NO TOCAR)
+app.py                   Python    ✗ NO         Entrada de Flask
+database.py              Python    ✗ NO         Conexión MySQL
+config.py                Python    ✗ NO         Configuración Python
+security.py              Python    ✗ NO         Autenticación/Seguridad
+biblioteca.sql           SQL       ✗ NO         Schema de BD (1 vez)
+START_CLASICO.bat        Batch     ✗ NO         Setup automático
+setup_simple.py          Python    ✗ NO         Setup inicial
+models/*.py              Python    ✗ NO         Estructura de datos
+routes/*.py              Python    ✗ NO         Endpoints
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ CREDENCIALES POR DEFECTO
+═══════════════════════════════════════════════════════════════════════════════════
+
+APLICACIÓN FLASK:
+  Usuario: admin
+  Password: Admin123456
+
+MYSQL (XAMPP):
+  Usuario: root
+  Password: (vacía/ninguna)
+
+SECRETS (Generados automáticamente):
+  SECRET_KEY: [Generado en setup]
+  JWT_SECRET: [Generado en setup]
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ TELÉFONO DE AYUDA RÁPIDA
+═══════════════════════════════════════════════════════════════════════════════════
+
+Problema              Archivo a leer              Ubicación
+────────────────────────────────────────────────────────────────────────
+¿Cómo empiezo?        PROXIMO_PASO.txt           Carpeta principal
+¿Qué comando?         ERRORES_CORREGIDOS.txt     Carpeta principal
+¿Puerto ocupado?      PUERTO_3306_OCUPADO.md     Carpeta principal
+¿Cómo configuro?      CONFIGURACION_ESTANDAR.md  Carpeta principal
+¿Cómo funciona?       MAPA_MENTAL.txt            Carpeta principal
+¿Qué es cada cosa?    COMPLETO_INDICE.txt        Carpeta principal
+¿Setup manual?        LISTO_CLASICO.txt          Carpeta principal
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ ATAJOS ÚTILES
+═══════════════════════════════════════════════════════════════════════════════════
+
+Acción                       PowerShell Command
+────────────────────────────────────────────────────────────────────────────
+Ir a carpeta principal       cd c:\Users\User\mi_entorno\Scripts\biblioteca
+Iniciar setup                .\START_CLASICO.bat
+Iniciar app                  python biblioteca_python\app.py
+Ver logs                     Get-Content logs\app.log -Tail 20
+Detener app                  CTRL+C (en la ventana que corre app.py)
+Conectar a MySQL             mysql -u root
+Detener MySQL (XAMPP)        (Cerrar XAMPP Control Panel)
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+ RESUMEN FINAL - TU CHECKLIST DE HOY
+═══════════════════════════════════════════════════════════════════════════════════
+
+Hoy necesitas hacer:
+
+1. ☐ Abrir XAMPP Control Panel
+2. ☐ Click Start en MySQL (esperar a Running)
+3. ☐ Doble click en START_CLASICO.bat
+4. ☐ Esperar a: ✅ SETUP COMPLETADO EXITOSAMENTE
+5. ☐ Abrir PowerShell en carpeta biblioteca
+6. ☐ Ejecutar: python biblioteca_python\app.py
+7. ☐ Esperar a: "Running on http://127.0.0.1:5000"
+8. ☐ Abrir navegador: http://127.0.0.1:5000
+9. ☐ Entrar: admin / Admin123456
+10. ☐ Ver dashboard
+
+Total tiempo estimado: 10 minutos
+
+Si todo sale bien: ✅ Aplicación lista para usar
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+TABLA DE REFERENCIA RÁPIDA PARA IMPRIMIR:
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ INFORMACIÓN CRÍTICA QUE DEBES RECORDAR                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│ Aplicación:      http://127.0.0.1:5000                                     │
+│ Usuario:         admin                                                     │
+│ Contraseña:      Admin123456                                               │
+│                                                                             │
+│ BD Host:         127.0.0.1                                                 │
+│ BD Puerto:       3306                                                      │
+│ BD User:         root                                                      │
+│ BD Name:         biblioteca                                                │
+│                                                                             │
+│ Setup:           Doble click START_CLASICO.bat                             │
+│ App:             python biblioteca_python\app.py                           │
+│                                                                             │
+│ Carpeta:         c:\Users\User\mi_entorno\Scripts\biblioteca\              │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+¡Tienes TODO lo que necesitas! 🚀
+
+Próximo paso: Abre XAMPP Control Panel y empieza

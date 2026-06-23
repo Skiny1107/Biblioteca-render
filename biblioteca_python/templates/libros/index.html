@@ -1,0 +1,1103 @@
+{% extends 'base.html' %}
+{% block title %}Libros{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/carousel-cards.css') }}">
+<style>
+    /* ── Vista tarjetas full width ── */
+    .carousel-view {
+        display: none !important;
+        margin-top: 0;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .carousel-view.visible {
+        display: block !important;
+    }
+    #dashCarousel {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+        gap: 20px !important;
+        padding: 16px 0 24px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    @media (max-width: 900px)  { #dashCarousel { grid-template-columns: repeat(2, 1fr) !important; } }
+    @media (max-width: 600px)  { #dashCarousel { grid-template-columns: 1fr !important; } }
+
+    /* ── Tarjeta estilo landing (adaptada al tema oscuro) ── */
+    .lib-card {
+        display: flex !important;
+        flex-direction: column !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        background: #131c2e !important;
+        box-shadow: 0 6px 24px rgba(0,0,0,.35), 0 0 0 1px rgba(200,169,110,.12) !important;
+        border: 1px solid rgba(200,169,110,.18) !important;
+        transition: transform .22s ease, box-shadow .22s ease !important;
+        cursor: default !important;
+    }
+    .lib-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 16px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(200,169,110,.3) !important;
+    }
+    .lib-card-cover {
+        position: relative;
+        height: 240px;
+        background: #e8eef6;
+        overflow: hidden;
+    }
+    .lib-card-cover img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform .3s ease, filter .3s ease;
+        filter: saturate(1.06) contrast(1.03);
+    }
+    .lib-card:hover .lib-card-cover img {
+        transform: scale(1.05);
+        filter: saturate(1.14) contrast(1.07);
+    }
+    .lib-card-pill {
+        position: absolute;
+        bottom: 12px; left: 12px;
+        background: rgba(15,50,111,.9);
+        color: #fff;
+        font-size: .72rem;
+        font-weight: 900;
+        padding: 6px 12px;
+        border-radius: 999px;
+        box-shadow: 0 4px 14px rgba(10,14,26,.25);
+        backdrop-filter: blur(4px);
+    }
+    .lib-card-pill.empty { background: rgba(185,28,28,.9); }
+    .lib-card-body {
+        padding: 16px 18px 18px;
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1;
+    }
+    .lib-card-category {
+        font-size: .68rem;
+        font-weight: 800;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: #c5a87e;
+        margin-bottom: 6px;
+    }
+    .lib-card-title {
+        font-size: 1.02rem;
+        font-weight: 700;
+        color: #e8dcc8 !important;
+        line-height: 1.3;
+        margin: 0 0 7px;
+    }
+    .lib-card-meta {
+        font-size: .8rem;
+        font-weight: 600;
+        color: #7ea8d8 !important;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .lib-card-meta span.pipe { color: rgba(200,169,110,.35); }
+    .lib-card-desc {
+        font-size: .82rem;
+        color: #8a9ab8 !important;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+        flex: 1;
+    }
+    .lib-card-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+    .lib-card-actions .btn-loan {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 9px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(200,169,110,.3);
+        background: linear-gradient(135deg, rgba(200,169,110,.18), rgba(200,169,110,.08));
+        color: #c5a87e;
+        font-weight: 700;
+        font-size: .82rem;
+        cursor: pointer;
+        transition: background .2s, transform .2s, border-color .2s;
+    }
+    .lib-card-actions .btn-loan:hover:not(:disabled) {
+        background: rgba(200,169,110,.28);
+        border-color: #c5a87e;
+        color: #e8c882;
+        transform: translateY(-1px);
+    }
+    .lib-card-actions .btn-loan:disabled {
+        opacity: .38;
+        cursor: not-allowed;
+    }
+    .lib-card-actions .btn-detail {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,.1);
+        background: rgba(255,255,255,.04);
+        color: #7a9ec4;
+        cursor: pointer;
+        transition: background .2s, transform .2s;
+        flex-shrink: 0;
+    }
+    .lib-card-actions .btn-detail:hover {
+        background: rgba(255,255,255,.1);
+        color: #e8dcc8;
+        transform: translateY(-1px);
+    }
+
+    /* ── Barra de búsqueda usuario (dark theme) ── */
+    .user-search-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .user-search-bar input {
+        flex: 1;
+        min-width: 200px;
+        padding: 10px 16px;
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: 8px;
+        font-size: .92rem;
+        background: rgba(255,255,255,.06);
+        color: #e8f0fe;
+        outline: none;
+        transition: border .2s, box-shadow .2s;
+    }
+    .user-search-bar input::placeholder { color: #7a8faa; }
+    .user-search-bar input:focus {
+        border-color: #c5a87e;
+        box-shadow: 0 0 0 3px rgba(197,168,126,.15);
+    }
+    .user-search-bar select {
+        padding: 10px 14px;
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: 8px;
+        font-size: .88rem;
+        background: rgba(255,255,255,.06);
+        color: #e8f0fe;
+        cursor: pointer;
+    }
+    .user-search-bar select option { background: #0d1b2a; color: #e8f0fe; }
+    .user-search-bar .btn-clear-user {
+        padding: 10px 16px;
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: 8px;
+        background: rgba(255,255,255,.06);
+        color: #94a3b8;
+        cursor: pointer;
+        font-size: .88rem;
+        transition: background .2s;
+        white-space: nowrap;
+    }
+    .user-search-bar .btn-clear-user:hover { background: rgba(255,255,255,.12); color: #e8f0fe; }
+
+    /* ── Contador de tarjetas ── */
+    .cards-count-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 8px 14px;
+        background: rgba(197,168,126,.06);
+        border-radius: 8px;
+        border: 1px solid rgba(197,168,126,.15);
+    }
+    .cards-count-bar span { font-size: .85rem; color: #7a8faa; }
+    .cards-count-bar strong { color: #c5a87e; font-weight: 700; }
+    .view-toggle-btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid rgba(255,255,255,.25);
+        background: rgba(255,255,255,.12);
+        color: #fff;
+        cursor: pointer;
+        font-size: .82rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background .2s;
+    }
+    .view-toggle-btn:hover { background: rgba(255,255,255,.2); }
+</style>
+{% endblock %}
+{% block content %}
+<div class="app-title">
+    <div><h1><i class="fa fa-book"></i> Libros</h1></div>
+    <div class="app-title-actions">
+        {% if session.get('id_usuario') == 1 %}
+        <button class="btn btn-primary mb-2" onclick="frmLibro()"><i class="fa fa-plus"></i> Nuevo</button>
+        <button class="btn btn-sm btn-success mb-2" onclick="$('#modal_carga_masiva').modal('show')"><i class="fa fa-upload"></i> Carga Masiva</button>
+        <button class="btn btn-sm btn-info mb-2" onclick="actualizarImagenesAPI()"><i class="fa fa-picture-o"></i> Buscar Portadas</button>
+        <button class="view-toggle-btn mb-2" id="btnToggleView" onclick="toggleAdminView()"><i class="fa fa-th-large" id="toggleIcon"></i> <span id="toggleLabel">Vista Cards</span></button>
+        {% endif %}
+        <button class="btn btn-sm btn-export btn-pdf mb-2" onclick="exportarReporte('pdf')"><i class="fa fa-file-pdf-o"></i> PDF</button>
+        <button class="btn btn-sm btn-export btn-excel mb-2" onclick="exportarReporte('excel')"><i class="fa fa-file-excel-o"></i> Excel</button>
+        <button class="btn btn-sm btn-export btn-word mb-2" onclick="exportarReporte('word')"><i class="fa fa-file-word-o"></i> Word</button>
+    </div>
+</div>
+
+<!-- Panel de Búsqueda Avanzada (solo admin/managers) -->
+{% if session.get('id_usuario') == 1 or session.get('permisos') %}
+<div class="row mb-3" id="panelFiltrosAdmin">
+    <div class="col-lg-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white" data-toggle="collapse" href="#collapseFiltros" style="cursor: pointer;">
+                <h5 class="mb-0"><i class="fa fa-filter"></i> Filtros de Búsqueda Avanzada <i class="fa fa-angle-down float-right"></i></h5>
+            </div>
+            <div id="collapseFiltros" class="collapse show">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Autor</label>
+                                <select class="form-control" id="filtroAutor" style="width: 100%;"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Editorial</label>
+                                <select class="form-control" id="filtroEditorial" style="width: 100%;"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Materia</label>
+                                <select class="form-control" id="filtroMateria" style="width: 100%;"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Estado</label>
+                                <select class="form-control" id="filtroEstado">
+                                    <option value="">Todos</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right mt-2">
+                        <button class="btn btn-secondary" onclick="limpiarFiltros()"><i class="fa fa-eraser"></i> Limpiar</button>
+                        <button class="btn btn-primary" onclick="aplicarFiltros()"><i class="fa fa-search"></i> Aplicar Filtros</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row" id="tableView">
+<div class="col-lg-12"><div class="tile"><div class="tile-body">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="tblLibros">
+            <thead class="thead-dark">
+                <tr><th>Id</th><th>Foto</th><th>Título</th><th>Autor</th><th>Editorial</th><th>Materia</th><th>Cantidad</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div></div></div></div>
+
+<div class="carousel-view" id="carouselView">
+    <!-- Barra de búsqueda rápida para usuarios regulares -->
+    <div class="user-search-bar" id="userSearchBar">
+        <input type="text" id="userSearchInput" placeholder="🔍 Buscar por título, autor o descripción..." oninput="filtrarCardsUsuario()">
+        <select id="userFiltroMateria" onchange="filtrarCardsUsuario()">
+            <option value="">Todas las materias</option>
+        </select>
+        <button class="btn-clear-user" onclick="limpiarFiltroUsuario()"><i class="fa fa-eraser"></i> Limpiar</button>
+    </div>
+    <div class="cards-count-bar" id="cardsCountBar">
+        <span>Mostrando <strong id="cardsCount">0</strong> libros</span>
+        <span id="cardsCountFiltered" style="display:none;">Filtrado — <strong id="cardsCountMatch">0</strong> resultados</span>
+    </div>
+    <div id="dashCarousel"></div>
+</div>
+
+<!-- Modal libro -->
+<div id="modal_libro" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white" id="titleLibro">Nuevo Libro</h5>
+                <button class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="frmLibro" enctype="multipart/form-data">
+                    <input type="hidden" id="id_libro" name="id">
+                    <input type="hidden" id="foto_actual_libro" name="foto_actual">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group"><label>Título</label>
+                                <input class="form-control" type="text" name="titulo" id="tituloLibro" placeholder="Título del libro"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group"><label>Cantidad</label>
+                                <input class="form-control" type="number" name="cantidad" id="cantidadLibro" placeholder="Cantidad" min="1"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Autor <a href="javascript:void(0)" onclick="agregarAutorRapido()" class="text-success ml-1" title="Agregar Autor"><i class="fa fa-plus-circle"></i></a></label>
+                                <select class="form-control autor" name="autor" id="autorLibro" style="width: 100%;"></select></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Editorial <a href="javascript:void(0)" onclick="agregarEditorialRapido()" class="text-success ml-1" title="Agregar Editorial"><i class="fa fa-plus-circle"></i></a></label>
+                                <select class="form-control editorial" name="editorial" id="editorialLibro" style="width: 100%;"></select></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Materia <a href="javascript:void(0)" onclick="agregarMateriaRapido()" class="text-success ml-1" title="Agregar Materia"><i class="fa fa-plus-circle"></i></a></label>
+                                <select class="form-control materia" name="materia" id="materiaLibro" style="width: 100%;"></select></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Núm. Páginas</label>
+                                <input class="form-control" type="number" name="num_pagina" placeholder="Páginas"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Año Edición</label>
+                                <input class="form-control" type="number" name="anio_edicion" placeholder="Año"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group"><label>Imagen (Archivo)</label>
+                                <input class="form-control" type="file" name="imagen" accept="image/*"></div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group"><label>O URL de Imagen</label>
+                                <input class="form-control" type="url" name="url_imagen" id="urlImagenLibro" placeholder="https://ejemplo.com/imagen.jpg"></div>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Descripción</label>
+                        <textarea class="form-control" name="descripcion" rows="2"></textarea></div>
+                    <button class="btn btn-primary" type="button" onclick="registrarLibro(event)">Guardar</button>
+                    <button class="btn btn-danger" type="button" data-dismiss="modal">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Carga Masiva -->
+<div id="modal_carga_masiva" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1a3a5c, #0d2137);">
+                <h5 class="modal-title text-white"><i class="fa fa-upload"></i> Carga Masiva de Libros</h5>
+                <button class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info" style="font-size:0.88rem;">
+                    <i class="fa fa-info-circle"></i> Sube un archivo <strong>.xlsx</strong> con las columnas:
+                    <em>Título, Autor, Editorial, Materia, Cantidad, Num Páginas, Año Edición, Descripción</em>.
+                    Si el libro ya existe, se sumará la cantidad.
+                </div>
+
+                <div class="text-center mb-3">
+                    <a href="/Libros/plantilla_excel" class="btn btn-outline-success btn-sm">
+                        <i class="fa fa-download"></i> Descargar Plantilla de Ejemplo
+                    </a>
+                </div>
+
+                <form id="frmCargaMasiva" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label><strong>Archivo Excel (.xlsx)</strong></label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="archivo_excel" name="archivo_excel" accept=".xlsx">
+                            <label class="custom-file-label" for="archivo_excel" id="lblArchivo">Seleccionar archivo...</label>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Barra de progreso -->
+                <div id="progreso_carga" style="display:none;" class="mt-3">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width:100%">Procesando...</div>
+                    </div>
+                </div>
+
+                <!-- Panel de resultados -->
+                <div id="resultado_carga" style="display:none;" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" type="button" onclick="subirExcel()"><i class="fa fa-upload"></i> Cargar Libros</button>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Solicitar Préstamo (usuario regular) -->
+<div id="modal_solicitar_prestamo" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1a4a1a, #0d3008);">
+                <h5 class="modal-title text-white"><i class="fa fa-book"></i> Solicitar Préstamo</h5>
+                <button class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Banner usuario -->
+                <div class="usuario-prestamo-banner mb-3">
+                    <div class="usuario-prestamo-avatar"><i class="fa fa-user-circle"></i></div>
+                    <div class="usuario-prestamo-info">
+                        <span class="usuario-prestamo-label">Solicitante</span>
+                        <span class="usuario-prestamo-nombre">{{ session.get('nombre', 'Usuario') }}</span>
+                    </div>
+                    <div class="usuario-prestamo-badge"><i class="fa fa-check-circle"></i> Sesión activa</div>
+                </div>
+
+                <!-- Info del libro -->
+                <div class="libro-info-banner mb-3">
+                    <i class="fa fa-book-o libro-info-icon"></i>
+                    <div class="libro-info-texto">
+                        <span class="libro-info-label">Libro seleccionado</span>
+                        <span class="libro-info-titulo" id="sp_titulo_libro">—</span>
+                    </div>
+                    <div class="libro-info-stock">
+                        <span class="libro-stock-label">Disponible</span>
+                        <span class="libro-stock-valor" id="sp_cant_libro">0</span>
+                    </div>
+                </div>
+
+                <form id="frmSolicitudPrestamo">
+                    <input type="hidden" id="sp_libro_id" name="libro">
+                    <input type="hidden" name="estudiante" value="0">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Cantidad</label>
+                                <input class="form-control" type="number" name="cantidad" id="sp_cantidad" min="1" value="1">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Fecha Préstamo</label>
+                                <input class="form-control" type="date" name="fecha_prestamo" id="sp_fecha_prestamo">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Fecha Devolución</label>
+                                <input class="form-control" type="date" name="fecha_devolucion" id="sp_fecha_devolucion">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Observación <small class="text-muted">(opcional)</small></label>
+                        <textarea class="form-control" name="observacion" rows="2" placeholder="Escribe alguna nota especial..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" type="button" onclick="confirmarSolicitudPrestamo()"><i class="fa fa-paper-plane"></i> Enviar Solicitud</button>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$('#tituloLibro').attr({required:true, minlength:2, maxlength:150});
+$('#cantidadLibro').attr({required:true, min:1, max:9999});
+$('#autorLibro, #editorialLibro, #materiaLibro').attr('required', true);
+$('input[name="num_pagina"]').attr({id:'numPaginasLibro', required:true, min:1, max:50000});
+$('input[name="anio_edicion"]').attr({id:'anioEdicionLibro', required:true, min:1000, max:new Date().getFullYear()});
+$('textarea[name="descripcion"]').attr({id:'descripcionLibro', maxlength:500});
+$('#sp_libro_id, #sp_cantidad, #sp_fecha_prestamo, #sp_fecha_devolucion').attr('required', true);
+$('#archivo_excel').attr('required', true);
+const IS_MANAGER = {{ (session.get('id_usuario')|int == 1 or 'Usuarios' in (session.get('permisos') or []) or 'Configuracion' in (session.get('permisos') or [])) | tojson }};
+const IS_REAL_ADMIN = {{ (session.get('id_usuario')|int == 1) | tojson }};
+$(document).ready(function() {
+    // Inicializar Select2 para filtros
+    $('#filtroAutor').select2({ ajax: { url: '/Autor/buscarAutor', data: function(p){ return {au:p.term}; }, processResults: function(d){ return {results:d}; } }, placeholder: "Buscar autor...", allowClear: true });
+    $('#filtroEditorial').select2({ ajax: { url: '/Editorial/buscarEditorial', data: function(p){ return {ed:p.term}; }, processResults: function(d){ return {results:d}; } }, placeholder: "Buscar editorial...", allowClear: true });
+    $('#filtroMateria').select2({ ajax: { url: '/Materia/buscarMateria', data: function(p){ return {ma:p.term}; }, processResults: function(d){ return {results:d}; } }, placeholder: "Buscar materia...", allowClear: true });
+});
+
+function aplicarFiltros() { tableLibros.ajax.reload(); }
+function limpiarFiltros() {
+    $('#filtroAutor').val(null).trigger('change');
+    $('#filtroEditorial').val(null).trigger('change');
+    $('#filtroMateria').val(null).trigger('change');
+    $('#filtroEstado').val('');
+    tableLibros.ajax.reload();
+}
+function exportarReporte(tipo) {
+    var params = new URLSearchParams();
+    var autor     = $('#filtroAutor').val();
+    var editorial = $('#filtroEditorial').val();
+    var materia   = $('#filtroMateria').val();
+    var estado    = $('#filtroEstado').val();
+    if (autor)     params.append('id_autor', autor);
+    if (editorial) params.append('id_editorial', editorial);
+    if (materia)   params.append('id_materia', materia);
+    if (estado)    params.append('estado', estado);
+    var url = '/Libros/' + tipo + (params.toString() ? '?' + params.toString() : '');
+    if (tipo === 'pdf') { window.open(url, '_blank'); }
+    else { window.location.href = url; }
+}
+
+var tableLibros = $('#tblLibros').DataTable({
+    ajax: {
+        url: '/Libros/listar',
+        dataSrc: '',
+        data: function(d) {
+            d.id_autor = $('#filtroAutor').val();
+            d.id_editorial = $('#filtroEditorial').val();
+            d.id_materia = $('#filtroMateria').val();
+            d.estado = $('#filtroEstado').val();
+        },
+        complete: function(xhr) {
+            if (!IS_MANAGER) {
+                renderDashboardCarousel(xhr.responseJSON);
+            }
+        }
+    },
+    columns: [
+        { data: 'id' },
+        { data: null, render: function(d) {
+            return '<img class="img-thumbnail" src="/static/img/libros/'+d.imagen+'" width="60">';
+        }},
+        { data: 'titulo' }, { data: 'autor' }, { data: 'editorial' }, { data: 'materia' }, { data: 'cantidad' },
+        { data: null, render: function(d) {
+            return d.estadoLabel==='Activo' ? '<span class="badge badge-success">Activo</span>' : '<span class="badge badge-danger">Inactivo</span>';
+        }},
+        { data: null, render: function(d) {
+            // Admin: editar / eliminar / reingresar
+            if (d.es_admin) {
+                if (d.acciones === 'editar,eliminar')
+                    return '<button class="btn btn-primary btn-sm" onclick="btnEditarLibro('+d.id+')"><i class="fa fa-pencil-square-o"></i></button> ' +
+                           '<button class="btn btn-danger btn-sm" onclick="btnEliminarLibro('+d.id+')"><i class="fa fa-trash-o"></i></button>';
+                return '<button class="btn btn-success btn-sm" onclick="btnReingresarLibro('+d.id+')"><i class="fa fa-reply-all"></i></button>';
+            }
+            // Usuario regular: no ve botones de préstamo o detalles (solo admin)
+            return '—';
+        }}
+    ]
+});
+
+// Cargar select2 para autores, editoriales, materias
+function cargarSelect2() {
+    $('#autorLibro').select2({
+        dropdownParent: $('#modal_libro'),
+        tags: true,
+        createTag: function (params) {
+            var term = $.trim(params.term);
+            if (term === '') return null;
+            return { id: term, text: term, newTag: true };
+        },
+        ajax: {
+            url: '/Autor/buscarAutor',
+            data: function(p){ return {au:p.term}; },
+            processResults: function(d){ return {results:d}; }
+        }
+    });
+    $('#editorialLibro').select2({
+        dropdownParent: $('#modal_libro'),
+        tags: true,
+        createTag: function (params) {
+            var term = $.trim(params.term);
+            if (term === '') return null;
+            return { id: term, text: term, newTag: true };
+        },
+        ajax: {
+            url: '/Editorial/buscarEditorial',
+            data: function(p){ return {ed:p.term}; },
+            processResults: function(d){ return {results:d}; }
+        }
+    });
+    $('#materiaLibro').select2({
+        dropdownParent: $('#modal_libro'),
+        tags: true,
+        createTag: function (params) {
+            var term = $.trim(params.term);
+            if (term === '') return null;
+            return { id: term, text: term, newTag: true };
+        },
+        ajax: {
+            url: '/Materia/buscarMateria',
+            data: function(p){ return {ma:p.term}; },
+            processResults: function(d){ return {results:d}; }
+        }
+    });
+}
+
+function frmLibro() {
+    $('#titleLibro').text('Nuevo Libro'); $('#frmLibro')[0].reset(); $('#id_libro').val('');
+    cargarSelect2(); $('#modal_libro').modal('show');
+}
+function registrarLibro(e) {
+    e.preventDefault();
+    if (!validarFormulario('#frmLibro')) return;
+
+    // Validaciones de cantidad y páginas
+    var cant = parseInt($('#cantidadLibro').val());
+    if (isNaN(cant) || cant <= 0) { swal('La cantidad debe ser mayor a cero.', '', 'warning'); return; }
+
+    var numPaginas = parseInt($('#numPaginasLibro').val());
+    if (!isNaN(numPaginas) && numPaginas <= 0) { swal('El número de páginas debe ser al menos 1.', '', 'warning'); return; }
+
+    // Validación de año edición
+    var anioEdicion = $('#anioEdicionLibro').val();
+    if (anioEdicion) {
+        var anioParseado = parseInt(anioEdicion.substring(0, 4));
+        var anioActual = new Date().getFullYear();
+        if (anioParseado > anioActual) {
+            swal('El año de edición no puede ser superior al año actual.', '', 'warning');
+            return;
+        }
+    }
+
+    var fd = new FormData($('#frmLibro')[0]);
+    $.ajax({ url:'/Libros/registrar', method:'POST', data:fd, processData:false, contentType:false,
+        success:function(res){ swal(res.msg,'',res.icono); if(res.icono==='success'){ $('#modal_libro').modal('hide'); tableLibros.ajax.reload(); } }
+    });
+}
+function btnEditarLibro(id) {
+    $.get('/Libros/editar/'+id, function(d) {
+        $('#titleLibro').text('Editar Libro'); $('#id_libro').val(d.id); $('#tituloLibro').val(d.titulo);
+        $('#cantidadLibro').val(d.cantidad); $('#foto_actual_libro').val(d.imagen);
+        $('#numPaginasLibro').val(d.num_pagina || '');
+        $('#anioEdicionLibro').val(d.anio_edicion ? String(d.anio_edicion).substring(0,4) : '');
+        $('#descripcionLibro').val(d.descripcion || '');
+        cargarSelect2();
+        cargarOpcionSelect2('#autorLibro', d.id_autor, d.autor);
+        cargarOpcionSelect2('#editorialLibro', d.id_editorial, d.editorial);
+        cargarOpcionSelect2('#materiaLibro', d.id_materia, d.materia);
+        $('#modal_libro').modal('show');
+    });
+}
+function btnEliminarLibro(id) {
+    swal({title:'¿Dar de baja?',icon:'warning',buttons:true,dangerMode:true}).then(function(ok){
+        if(ok) $.get('/Libros/eliminar/'+id, function(r){ swal(r.msg,'',r.icono); tableLibros.ajax.reload(); });
+    });
+}
+function btnReingresarLibro(id) {
+    $.get('/Libros/reingresar/'+id, function(r){ swal(r.msg,'',r.icono); tableLibros.ajax.reload(); });
+}
+
+// ── Almacenamiento de todos los libros para filtrado local ───────────────
+var _allLibros = [];
+
+function renderDashboardCarousel(libros) {
+    const tableView    = document.getElementById('tableView');
+    const carouselView = document.getElementById('carouselView');
+
+    // Ocultar tabla, mostrar carrusel (usando clase para respetar !important)
+    if (tableView)    tableView.style.setProperty('display', 'none', 'important');
+    if (carouselView) carouselView.classList.add('visible');
+
+    _allLibros = libros || [];
+
+    // Poblar filtro de materias
+    const selMateria = document.getElementById('userFiltroMateria');
+    if (selMateria) {
+        const materias = [...new Set(_allLibros.map(l => l.materia).filter(Boolean))].sort();
+        selMateria.innerHTML = '<option value="">Todas las materias</option>' +
+            materias.map(m => `<option value="${m}">${m}</option>`).join('');
+    }
+
+    _renderCards(_allLibros);
+}
+
+function _renderCards(libros) {
+    const container = document.getElementById('dashCarousel');
+    const countEl   = document.getElementById('cardsCount');
+    container.innerHTML = '';
+
+    if (!libros || libros.length === 0) {
+        container.innerHTML = '<div class="alert alert-info w-100 text-center" style="grid-column:1/-1">No se encontraron libros con los filtros aplicados.</div>';
+        if (countEl) countEl.textContent = '0';
+        return;
+    }
+
+    if (countEl) countEl.textContent = libros.length;
+    libros.forEach(libro => container.appendChild(buildBookCard(libro)));
+}
+
+function filtrarCardsUsuario() {
+    const q        = (document.getElementById('userSearchInput').value || '').toLowerCase();
+    const materia  = (document.getElementById('userFiltroMateria').value || '');
+    const filtered = _allLibros.filter(l => {
+        const matchQ = !q ||
+            (l.titulo      || '').toLowerCase().includes(q) ||
+            (l.autor       || '').toLowerCase().includes(q) ||
+            (l.descripcion || '').toLowerCase().includes(q);
+        const matchM = !materia || l.materia === materia;
+        return matchQ && matchM;
+    });
+
+    const countFiltered = document.getElementById('cardsCountFiltered');
+    const countMatch    = document.getElementById('cardsCountMatch');
+    if (countFiltered && countMatch) {
+        const isFiltering = q || materia;
+        countFiltered.style.display = isFiltering ? 'block' : 'none';
+        countMatch.textContent      = filtered.length;
+    }
+    _renderCards(filtered);
+}
+
+function limpiarFiltroUsuario() {
+    document.getElementById('userSearchInput').value = '';
+    document.getElementById('userFiltroMateria').value = '';
+    const countFiltered = document.getElementById('cardsCountFiltered');
+    if (countFiltered) countFiltered.style.display = 'none';
+    _renderCards(_allLibros);
+    const countEl = document.getElementById('cardsCount');
+    if (countEl) countEl.textContent = _allLibros.length;
+}
+
+// ── Toggle vista admin (tabla ↔ tarjetas) ──────────────────────────────
+var _adminCardView = false;
+function toggleAdminView() {
+    _adminCardView = !_adminCardView;
+    const tableView    = document.getElementById('tableView');
+    const carouselView = document.getElementById('carouselView');
+    const icon         = document.getElementById('toggleIcon');
+    const label        = document.getElementById('toggleLabel');
+    if (_adminCardView) {
+        if (tableView)    tableView.style.setProperty('display', 'none', 'important');
+        if (carouselView) carouselView.classList.add('visible');
+        // Poblar tarjetas admin si no hay datos
+        if (_allLibros.length === 0) {
+            $.get('/Libros/listar', function(data) {
+                _allLibros = data || [];
+                _renderCards(_allLibros);
+            });
+        } else {
+            _renderCards(_allLibros);
+        }
+        if (icon)  icon.className  = 'fa fa-list';
+        if (label) label.textContent = 'Vista Tabla';
+    } else {
+        if (tableView)    tableView.style.removeProperty('display');
+        if (carouselView) carouselView.classList.remove('visible');
+        if (icon)  icon.className  = 'fa fa-th-large';
+        if (label) label.textContent = 'Vista Cards';
+    }
+}
+
+function buildBookCard(libro) {
+    const div = document.createElement('div');
+    div.className = 'lib-card';
+
+    const isOutOfStock    = libro.cantidad <= 0;
+    const pillText        = isOutOfStock ? 'No disponible' : `${libro.cantidad} Disponibles`;
+    const pillClass       = isOutOfStock ? 'empty' : '';
+    const safeTitle       = libro.titulo
+        ? libro.titulo.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
+    const yearBadge       = libro.anio_edicion
+        ? String(libro.anio_edicion).substring(0, 4) : 'S/A';
+
+    const actionsHtml = IS_REAL_ADMIN ? `
+            <div class="lib-card-actions">
+                <button class="btn-loan"
+                        onclick="abrirSolicitudPrestamo(${libro.id}, '${safeTitle}', ${libro.cantidad})"
+                        ${isOutOfStock ? 'disabled' : ''}>
+                    <i class="fa fa-book"></i> Solicitar Préstamo
+                </button>
+                <button class="btn-detail" onclick="verDetalle(${libro.id})" title="Ver detalles">
+                    <i class="fa fa-info-circle"></i>
+                </button>
+            </div>
+    ` : '';
+
+    div.innerHTML = `
+        <div class="lib-card-cover">
+            <img src="/static/img/libros/${libro.imagen}" alt="${libro.titulo}"
+                 onerror="this.src='/static/img/libros/default.png'" loading="lazy">
+            <div class="lib-card-pill ${pillClass}">${pillText}</div>
+        </div>
+        <div class="lib-card-body">
+            <div class="lib-card-category">${libro.materia || 'Sin categoría'}</div>
+            <h3 class="lib-card-title">${libro.titulo}</h3>
+            <p class="lib-card-meta">
+                <i class="fa fa-user-o"></i> ${libro.autor}
+                <span class="pipe">|</span> ${yearBadge}
+            </p>
+            <p class="lib-card-desc">${libro.descripcion || 'Sin descripción disponible.'}</p>
+            ${actionsHtml}
+        </div>
+    `;
+    return div;
+}
+
+function verDetalle(id) {
+    $.get('/Libros/editar/'+id, function(d) {
+        swal({
+            title: d.titulo,
+            text: `Autor: ${d.autor}\nEditorial: ${d.editorial}\nMateria: ${d.materia}\nPáginas: ${d.num_pagina || 'N/A'}\nAño: ${d.anio_edicion || 'N/A'}\n\n${d.descripcion || ''}`,
+            icon: d.imagen ? '/static/img/libros/' + d.imagen : 'info'
+        });
+    });
+}
+
+// ─── Solicitud de Préstamo (usuario regular) ──────────────────────────────────
+function abrirSolicitudPrestamo(id, titulo, cantDisponible) {
+    $('#frmSolicitudPrestamo')[0].reset();
+    $('#sp_libro_id').val(id);
+    $('#sp_titulo_libro').text(titulo);
+    $('#sp_cant_libro').text(cantDisponible);
+    $('#sp_cantidad').attr('max', cantDisponible).val(1);
+    // Fecha de hoy por defecto — bloquear días pasados
+    var hoy = new Date().toISOString().split('T')[0];
+    var manana = new Date(Date.now() + 1*24*60*60*1000).toISOString().split('T')[0];
+    var enDiezDias = new Date(Date.now() + 10*24*60*60*1000).toISOString().split('T')[0];
+    $('#sp_fecha_prestamo').attr('min', hoy).val(hoy);
+    $('#sp_fecha_devolucion').attr('min', manana).val(enDiezDias);
+    $('#modal_solicitar_prestamo').modal('show');
+}
+
+// Cuando cambia la fecha de préstamo, ajustar el mínimo de devolución
+$('#sp_fecha_prestamo').on('change', function() {
+    var fechaPrestamo = $(this).val();
+    if (fechaPrestamo) {
+        // Devolución debe ser al menos el día siguiente al préstamo
+        var minDevolucion = new Date(fechaPrestamo + 'T00:00:00');
+        minDevolucion.setDate(minDevolucion.getDate() + 1);
+        var minStr = minDevolucion.toISOString().split('T')[0];
+        $('#sp_fecha_devolucion').attr('min', minStr);
+        // Si la devolución actual ya es inválida, corregirla
+        if ($('#sp_fecha_devolucion').val() <= fechaPrestamo) {
+            $('#sp_fecha_devolucion').val(minStr);
+        }
+    }
+});
+
+function confirmarSolicitudPrestamo() {
+    if (!validarFormulario('#frmSolicitudPrestamo')) return;
+    var cantidad = parseInt($('#sp_cantidad').val());
+
+    var disponible = parseInt($('#sp_cant_libro').text());
+    if (!cantidad || cantidad < 1) {
+        swal('Ingresa una cantidad válida.', '', 'warning'); return;
+    }
+    if (cantidad > disponible) {
+        swal('No hay suficientes ejemplares disponibles. Stock: ' + disponible, '', 'warning'); return;
+    }
+
+    var f_prestamo = $('#sp_fecha_prestamo').val();
+    var f_devolucion = $('#sp_fecha_devolucion').val();
+    if (!f_prestamo || !f_devolucion) {
+        swal('Ambas fechas son obligatorias.', '', 'warning'); return;
+    }
+    if (f_devolucion <= f_prestamo) {
+        swal('La fecha de devolución tiene que ser posterior al día de préstamo.', '', 'warning'); return;
+    }
+
+    $.post('/Prestamos/registrar', $('#frmSolicitudPrestamo').serialize(), function(res) {
+        swal(res.msg, '', res.icono);
+        if (res.icono === 'success') {
+            $('#modal_solicitar_prestamo').modal('hide');
+            tableLibros.ajax.reload();
+        }
+    });
+}
+
+// ─── Carga Masiva ─────────────────────────────────────────────────────────────
+// Mostrar nombre del archivo seleccionado
+$('#archivo_excel').on('change', function() {
+    var name = this.files[0] ? this.files[0].name : 'Seleccionar archivo...';
+    $('#lblArchivo').text(name);
+    $('#resultado_carga').hide().html('');
+});
+
+// Limpiar modal al cerrarlo
+$('#modal_carga_masiva').on('hidden.bs.modal', function() {
+    $('#frmCargaMasiva')[0].reset();
+    $('#lblArchivo').text('Seleccionar archivo...');
+    $('#resultado_carga').hide().html('');
+    $('#progreso_carga').hide();
+});
+
+function subirExcel() {
+    if (!validarFormulario('#frmCargaMasiva')) return;
+    var archivo = $('#archivo_excel')[0].files[0];
+    if (!archivo) {
+        swal('Selecciona un archivo Excel (.xlsx) primero.', '', 'warning');
+        return;
+    }
+    if (!archivo.name.endsWith('.xlsx')) {
+        swal('El archivo debe ser .xlsx', '', 'warning');
+        return;
+    }
+
+    var fd = new FormData($('#frmCargaMasiva')[0]);
+    $('#progreso_carga').show();
+    $('#resultado_carga').hide().html('');
+
+    $.ajax({
+        url: '/Libros/upload_excel',
+        method: 'POST',
+        data: fd,
+        processData: false,
+        contentType: false,
+        success: function(res) {
+            $('#progreso_carga').hide();
+            var iconColor = res.icono === 'success' ? '#28a745' : (res.icono === 'warning' ? '#ffc107' : '#dc3545');
+            var iconClass = res.icono === 'success' ? 'fa-check-circle' : (res.icono === 'warning' ? 'fa-exclamation-triangle' : 'fa-times-circle');
+            var html = '<div class="alert" style="border-left: 4px solid ' + iconColor + '; background: rgba(0,0,0,0.1);">';
+            html += '<i class="fa ' + iconClass + '" style="color:' + iconColor + '"></i> <strong>' + res.msg + '</strong>';
+            if (res.detalles && res.detalles.length > 0) {
+                html += '<hr><ul class="mb-0" style="font-size:0.82rem; max-height:120px; overflow-y:auto;">';
+                res.detalles.forEach(function(d) { html += '<li>' + d + '</li>'; });
+                html += '</ul>';
+            }
+            html += '</div>';
+            $('#resultado_carga').html(html).show();
+            if (res.icono !== 'error') tableLibros.ajax.reload();
+        },
+        error: function() {
+            $('#progreso_carga').hide();
+            swal('Error de conexion al subir el archivo.', '', 'error');
+        }
+    });
+}
+
+function actualizarImagenesAPI() {
+    swal({
+        title: "¿Escanear imágenes de internet?",
+        text: "Este proceso buscará y descargará portadas y fotos para libros y autores en segundo plano. ¿Deseas iniciar?",
+        icon: "info",
+        buttons: ["Cancelar", "Iniciar Búsqueda"],
+    }).then((ok) => {
+        if(ok) {
+            // Llamamos al proceso
+            $.get(base_url + 'Libros/run_image_updater', function(r) {
+                if (r.icono !== 'success') {
+                    swal("Error", r.msg, "error");
+                    return;
+                }
+
+                // Mostrar loading y arrancar polling
+                swal({
+                    title: "Procesando imágenes",
+                    text: "Iniciando escáner...",
+                    icon: "info",
+                    buttons: false,
+                    closeOnClickOutside: false,
+                    closeOnEsc: false
+                });
+
+                var pollingInterval = setInterval(function() {
+                    $.get(base_url + 'Libros/progreso_imagenes', function(pr) {
+                        if (pr && pr.estado) {
+                            var msg = "";
+                            if (pr.estado === 'procesando_libros') {
+                                msg = "Buscando libros (" + pr.actual + "/" + pr.total + ")\n" + pr.mensaje;
+                            } else if (pr.estado === 'procesando_autores') {
+                                msg = "Buscando autores (" + pr.actual + "/" + pr.total + ")\n" + pr.mensaje;
+                            } else if (pr.estado === 'completado') {
+                                clearInterval(pollingInterval);
+                                msg = "Portadas obtenidas: " + pr.ok_libros + "\nFotos obtenidas: " + pr.ok_autores;
+                                swal("¡Proceso Completado!", msg, "success").then(() => {
+                                    location.reload();
+                                });
+                                return;
+                            } else {
+                                msg = pr.mensaje || "Por favor espera...";
+                            }
+
+                            // Actualizar texto UI
+                            var txtNode = document.querySelector('.swal-text');
+                            if(txtNode) {
+                                txtNode.innerText = msg;
+                            }
+                        }
+                    }).fail(function() {
+                        // En caso de error de red momentaneo, ignorar y seguir probando
+                    });
+                }, 1000);
+            });
+        }
+    });
+}
+
+function agregarAutorRapido() {
+    var nombre = prompt("Ingrese el nombre del nuevo autor:");
+    if (nombre === null) return;
+    nombre = nombre.trim();
+    if (nombre.length < 3) {
+        swal("El nombre debe tener al menos 3 caracteres", "", "warning");
+        return;
+    }
+    $.post('/Autor/registrar', { autor: nombre, id: '' }, function(res) {
+        swal(res.msg, '', res.icono);
+        if (res.icono === 'success') {
+            $.get('/Autor/buscarAutor', { au: nombre }, function(data) {
+                if (data && data.length > 0) {
+                    var match = data.find(function(item) { return item.text.toLowerCase() === nombre.toLowerCase(); }) || data[0];
+                    cargarOpcionSelect2('#autorLibro', match.id, match.text);
+                }
+            });
+        }
+    });
+}
+
+function agregarEditorialRapido() {
+    var nombre = prompt("Ingrese el nombre de la nueva editorial:");
+    if (nombre === null) return;
+    nombre = nombre.trim();
+    if (nombre.length < 2) {
+        swal("El nombre debe tener al menos 2 caracteres", "", "warning");
+        return;
+    }
+    $.post('/Editorial/registrar', { editorial: nombre, id: '' }, function(res) {
+        swal(res.msg, '', res.icono);
+        if (res.icono === 'success') {
+            $.get('/Editorial/buscarEditorial', { ed: nombre }, function(data) {
+                if (data && data.length > 0) {
+                    var match = data.find(function(item) { return item.text.toLowerCase() === nombre.toLowerCase(); }) || data[0];
+                    cargarOpcionSelect2('#editorialLibro', match.id, match.text);
+                }
+            });
+        }
+    });
+}
+
+function agregarMateriaRapido() {
+    var nombre = prompt("Ingrese el nombre de la nueva materia (categoría):");
+    if (nombre === null) return;
+    nombre = nombre.trim();
+    if (nombre.length < 2) {
+        swal("El nombre debe tener al menos 2 caracteres", "", "warning");
+        return;
+    }
+    $.post('/Materia/registrar', { materia: nombre, id: '' }, function(res) {
+        swal(res.msg, '', res.icono);
+        if (res.icono === 'success') {
+            $.get('/Materia/buscarMateria', { ma: nombre }, function(data) {
+                if (data && data.length > 0) {
+                    var match = data.find(function(item) { return item.text.toLowerCase() === nombre.toLowerCase(); }) || data[0];
+                    cargarOpcionSelect2('#materiaLibro', match.id, match.text);
+                }
+            });
+        }
+    });
+}
+</script>
+{% endblock %}

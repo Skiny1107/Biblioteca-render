@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Autores{% endblock %}
+
+{% block content %}
+<div class="app-title">
+  <div><h1><i class="fa fa-address-book-o"></i> Autores</h1></div>
+  <div class="app-title-actions">
+    {% if session.get('id_usuario') == 1 %}
+    <button class="btn btn-primary mb-2" onclick="frmAutor()"><i class="fa fa-plus"></i> Nuevo</button>
+    {% endif %}
+    <a class="btn btn-sm btn-export btn-pdf mb-2" href="/Autor/pdf" target="_blank"><i class="fa fa-file-pdf-o"></i> PDF</a>
+    <a class="btn btn-sm btn-export btn-excel mb-2" href="/Autor/excel"><i class="fa fa-file-excel-o"></i> Excel</a>
+    <a class="btn btn-sm btn-export btn-word mb-2" href="/Autor/word"><i class="fa fa-file-word-o"></i> Word</a>
+  </div>
+</div>
+<div class="row"><div class="col-lg-12"><div class="tile"><div class="tile-body">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover" id="tblAutores">
+            <thead class="thead-dark"><tr><th>Id</th><th>Foto</th><th>Autor</th><th>Estado</th><th></th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div></div></div></div>
+
+<div id="modal_autor" class="modal fade" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title text-white" id="titleAutor">Nuevo Autor</h5>
+            <button class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+            <form id="frmAutor" enctype="multipart/form-data">
+                <input type="hidden" id="id_autor" name="id">
+                <input type="hidden" id="foto_actual_autor" name="foto_actual">
+                <div class="form-group"><label>Nombre del Autor</label>
+                    <input class="form-control" type="text" name="autor" id="autorInput" placeholder="Nombre del autor"></div>
+                <div class="form-group"><label>Imagen (Archivo)</label>
+                    <input class="form-control" type="file" name="imagen" accept="image/*"></div>
+                <div class="form-group"><label>O URL de Imagen</label>
+                    <input class="form-control" type="url" name="url_imagen" id="urlImagenAutor" placeholder="https://ejemplo.com/imagen.jpg" maxlength="255"></div>
+                <button class="btn btn-primary" type="button" onclick="registrarAutor(event)">Guardar</button>
+                <button class="btn btn-danger" type="button" data-dismiss="modal">Cancelar</button>
+            </form>
+        </div>
+    </div></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$('#autorInput').attr({required:true, minlength:3, maxlength:120, pattern:"[A-Za-zÁÉÍÓÚáéíóúÑñ\\s.'-]{3,120}"});
+var tableAutores = $('#tblAutores').DataTable({
+    ajax: { url: '/Autor/listar', dataSrc: '' },
+    columns: [
+        { data: 'id' },
+        { data: null, render: function(d) {
+            var img = d.imagen || 'default.png';
+            return '<img class="img-thumbnail rounded-circle" src="/static/img/autores/'+img+'" width="55" height="55" style="object-fit:cover;">';
+        }},
+        { data: 'autor' },
+        { data: null, render: function(d) {
+            return d.estadoLabel==='Activo'?'<span class="badge badge-success">Activo</span>':'<span class="badge badge-danger">Inactivo</span>';
+        }},
+        { data: null, render: function(d) {
+            if(d.acciones==='editar,eliminar') return '<button class="btn btn-primary btn-sm" onclick="btnEditarAutor('+d.id+')"><i class="fa fa-pencil-square-o"></i></button> <button class="btn btn-danger btn-sm" onclick="btnEliminarAutor('+d.id+')"><i class="fa fa-trash-o"></i></button>';
+            if(d.acciones==='reingresar') return '<button class="btn btn-success btn-sm" onclick="btnReingresarAutor('+d.id+')"><i class="fa fa-reply-all"></i></button>';
+            return '<span class="text-muted">—</span>';
+        }}
+    ]
+});
+function frmAutor() { $('#titleAutor').text('Nuevo Autor'); $('#frmAutor')[0].reset(); $('#id_autor').val(''); $('#modal_autor').modal('show'); }
+function registrarAutor(e) {
+    e.preventDefault();
+    if (!validarFormulario('#frmAutor')) return;
+    var fd = new FormData($('#frmAutor')[0]);
+    $.ajax({ url:'/Autor/registrar', method:'POST', data:fd, processData:false, contentType:false,
+        success:function(res){ swal(res.msg,'',res.icono); if(res.icono==='success'){ $('#modal_autor').modal('hide'); tableAutores.ajax.reload(); } }
+    });
+}
+function btnEditarAutor(id) {
+    $.get('/Autor/editar/'+id, function(d) {
+        $('#titleAutor').text('Editar Autor'); $('#id_autor').val(d.id); $('#autorInput').val(d.autor); $('#foto_actual_autor').val(d.imagen); $('#modal_autor').modal('show');
+    });
+}
+function btnEliminarAutor(id) {
+    swal({title:'¿Dar de baja?',icon:'warning',buttons:true,dangerMode:true}).then(function(ok){
+        if(ok) $.get('/Autor/eliminar/'+id, function(r){ swal(r.msg,'',r.icono); tableAutores.ajax.reload(); });
+    });
+}
+function btnReingresarAutor(id) { $.get('/Autor/reingresar/'+id, function(r){ swal(r.msg,'',r.icono); tableAutores.ajax.reload(); }); }
+</script>
+{% endblock %}

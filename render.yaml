@@ -1,6 +1,7 @@
 services:
   - type: web
     name: biblioteca
+    plan: free
     env: python
     buildCommand: pip install -r biblioteca_python/requirements.txt
     startCommand: gunicorn --chdir biblioteca_python --config biblioteca_python/gunicorn_config.py app:app

@@ -813,7 +813,7 @@ function buildBookCard(libro) {
     const yearBadge       = libro.anio_edicion
         ? String(libro.anio_edicion).substring(0, 4) : 'S/A';
 
-    const actionsHtml = IS_REAL_ADMIN ? `
+    const actionsHtml = `
             <div class="lib-card-actions">
                 <button class="btn-loan"
                         onclick="abrirSolicitudPrestamo(${libro.id}, '${safeTitle}', ${libro.cantidad})"
@@ -824,7 +824,7 @@ function buildBookCard(libro) {
                     <i class="fa fa-info-circle"></i>
                 </button>
             </div>
-    ` : '';
+    `;
 
     div.innerHTML = `
         <div class="lib-card-cover">

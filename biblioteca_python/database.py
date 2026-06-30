@@ -83,6 +83,7 @@ class Query:
     def _get_connection(self):
         try:
             self.con = self._pool_manager.get_connection()
+            self.con.set_client_encoding('UTF8')
             self.con.autocommit = False
         except Exception as e:
             logger.error(f"Error getting DB connection: {e}")

@@ -230,11 +230,25 @@ html[data-theme="dark"] table.dataTable tbody td * {
     color: inherit !important;
 }
 html[data-theme="dark"] .table tbody tr:nth-child(odd) td,
-html[data-theme="dark"] table.dataTable tbody tr:nth-child(odd) td {
+html[data-theme="dark"] table.dataTable tbody tr:nth-child(odd) td,
+html[data-theme="dark"] #tblUsuarios tbody tr:nth-child(odd) td,
+html[data-theme="dark"] #tblEstudiantes tbody tr:nth-child(odd) td,
+html[data-theme="dark"] #tblLibros tbody tr:nth-child(odd) td,
+html[data-theme="dark"] #tblPrestamos tbody tr:nth-child(odd) td,
+html[data-theme="dark"] #tblEditorial tbody tr:nth-child(odd) td,
+html[data-theme="dark"] #tblAutores tbody tr:nth-child(odd) td,
+html[data-theme="dark"] #tblMaterias tbody tr:nth-child(odd) td {
     background: rgba(9,20,46,0.75) !important;
 }
 html[data-theme="dark"] .table tbody tr:hover td,
-html[data-theme="dark"] table.dataTable tbody tr:hover td {
+html[data-theme="dark"] table.dataTable tbody tr:hover td,
+html[data-theme="dark"] #tblUsuarios tbody tr:hover td,
+html[data-theme="dark"] #tblEstudiantes tbody tr:hover td,
+html[data-theme="dark"] #tblLibros tbody tr:hover td,
+html[data-theme="dark"] #tblPrestamos tbody tr:hover td,
+html[data-theme="dark"] #tblEditorial tbody tr:hover td,
+html[data-theme="dark"] #tblAutores tbody tr:hover td,
+html[data-theme="dark"] #tblMaterias tbody tr:hover td {
     background: rgba(74,144,226,0.14) !important;
     color: #ffffff !important;
 }
@@ -677,11 +691,25 @@ html[data-theme="light"] #tblMaterias tbody td {
 html[data-theme="light"] .table tbody td *,
 html[data-theme="light"] table.dataTable tbody td * { color: inherit !important; }
 html[data-theme="light"] .table tbody tr:nth-child(odd) td,
-html[data-theme="light"] table.dataTable tbody tr:nth-child(odd) td {
+html[data-theme="light"] table.dataTable tbody tr:nth-child(odd) td,
+html[data-theme="light"] #tblUsuarios tbody tr:nth-child(odd) td,
+html[data-theme="light"] #tblEstudiantes tbody tr:nth-child(odd) td,
+html[data-theme="light"] #tblLibros tbody tr:nth-child(odd) td,
+html[data-theme="light"] #tblPrestamos tbody tr:nth-child(odd) td,
+html[data-theme="light"] #tblEditorial tbody tr:nth-child(odd) td,
+html[data-theme="light"] #tblAutores tbody tr:nth-child(odd) td,
+html[data-theme="light"] #tblMaterias tbody tr:nth-child(odd) td {
     background: #fafbfc !important;
 }
 html[data-theme="light"] .table tbody tr:hover td,
-html[data-theme="light"] table.dataTable tbody tr:hover td {
+html[data-theme="light"] table.dataTable tbody tr:hover td,
+html[data-theme="light"] #tblUsuarios tbody tr:hover td,
+html[data-theme="light"] #tblEstudiantes tbody tr:hover td,
+html[data-theme="light"] #tblLibros tbody tr:hover td,
+html[data-theme="light"] #tblPrestamos tbody tr:hover td,
+html[data-theme="light"] #tblEditorial tbody tr:hover td,
+html[data-theme="light"] #tblAutores tbody tr:hover td,
+html[data-theme="light"] #tblMaterias tbody tr:hover td {
     background: #e8f0fe !important;
     color: #202124 !important;
 }

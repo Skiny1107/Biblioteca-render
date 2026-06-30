@@ -57,6 +57,12 @@ html[data-theme="dark"] .app-sidebar {
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4) !important;
 }
 
+html[data-theme="dark"] .treeview-menu {
+    background: #081120 !important;
+    border-left: 3px solid rgba(74, 130, 220, 0.15) !important;
+    padding-left: 10px !important;
+}
+
 html[data-theme="dark"] .app-sidebar__user {
     border-bottom: 1px solid rgba(74, 130, 220, 0.2) !important;
     color: #c8a96e !important;
@@ -682,6 +688,12 @@ html[data-theme="light"] .app-sidebar {
     background: #ffffff !important;
     border-right: 1px solid #e0e0e0 !important;
     box-shadow: 2px 0 10px rgba(60, 64, 67, 0.08) !important;
+}
+
+html[data-theme="light"] .treeview-menu {
+    background: #f8f9fa !important;
+    border-left: 3px solid rgba(26, 115, 232, 0.15) !important;
+    padding-left: 10px !important;
 }
 
 html[data-theme="light"] .app-sidebar__user {

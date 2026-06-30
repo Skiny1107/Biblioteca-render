@@ -21,15 +21,15 @@ class UsuariosModel(Query):
 
     def get_usuarios(self):
         try:
-            # Agregamos rol para mejor visualización
-            sql = "SELECT id, usuario, nombre, estado, rol FROM usuarios"
+            # Agregamos rol y correo para mejor visualización
+            sql = "SELECT id, usuario, nombre, estado, rol, correo FROM usuarios"
             return self.select_all(sql)
         except Exception as e:
             logger.error(f"Error in get_usuarios: {e}")
             raise
 
-    def registrar_usuario(self, usuario, nombre, clave, rol='usuario'):
-        """Registrar usuario con rol específico"""
+    def registrar_usuario(self, usuario, nombre, clave, rol='usuario', correo=None):
+        """Registrar usuario con rol específico y correo"""
         try:
             existe = self.select("SELECT id FROM usuarios WHERE usuario = %s", (usuario,))
             if existe:
@@ -38,20 +38,20 @@ class UsuariosModel(Query):
             hash_clave = SecurityUtils.hash_password(clave)
             # Validar que el rol sea válido
             rol = rol if rol in ROLES_SISTEMA else 'usuario'
-            sql = "INSERT INTO usuarios(usuario, nombre, clave, rol) VALUES (%s, %s, %s, %s)"
-            data = self.save(sql, (usuario, nombre, hash_clave, rol))
+            sql = "INSERT INTO usuarios(usuario, nombre, clave, rol, correo) VALUES (%s, %s, %s, %s, %s)"
+            data = self.save(sql, (usuario, nombre, hash_clave, rol, correo))
             return "ok" if data == 1 else "error"
         except Exception as e:
             logger.error(f"Error in registrar_usuario: {e}")
             raise
 
-    def modificar_usuario(self, usuario, nombre, id_):
+    def modificar_usuario(self, usuario, nombre, id_, correo=None):
         try:
             existe = self.select("SELECT id FROM usuarios WHERE usuario = %s AND id != %s", (usuario, id_))
             if existe:
                 return "existe"
-            sql = "UPDATE usuarios SET usuario = %s, nombre = %s WHERE id = %s"
-            data = self.save(sql, (usuario, nombre, id_))
+            sql = "UPDATE usuarios SET usuario = %s, nombre = %s, correo = %s WHERE id = %s"
+            data = self.save(sql, (usuario, nombre, correo, id_))
             return "modificado" if data == 1 else "error"
         except Exception as e:
             logger.error(f"Error in modificar_usuario: {e}")
@@ -59,7 +59,7 @@ class UsuariosModel(Query):
 
     def editar_user(self, id_):
         try:
-            sql = "SELECT id, usuario, nombre, estado FROM usuarios WHERE id = %s"
+            sql = "SELECT id, usuario, nombre, estado, correo FROM usuarios WHERE id = %s"
             return self.select(sql, (id_,))
         except Exception as e:
             logger.error(f"Error in editar_user: {e}")

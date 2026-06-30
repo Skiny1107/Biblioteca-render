@@ -104,9 +104,12 @@ def registro_publico():
         usuario = SecurityUtils.sanitize_input(request.form.get('usuario', ''))
         nombre = SecurityUtils.sanitize_input(request.form.get('nombre', ''))
         clave = request.form.get('clave', '')
+        correo = SecurityUtils.sanitize_input(request.form.get('correo', ''))
         
-        if not usuario or not nombre or not clave:
+        if not usuario or not nombre or not clave or not correo:
             raise ValidationError('Todos los campos son requeridos')
+        if not SecurityUtils.validate_email(correo):
+            raise ValidationError('Ingresa un correo electrónico válido')
         if not SecurityUtils.validate_username(usuario):
             raise ValidationError('El usuario solo admite letras, numeros, guiones y guion bajo (3-20 caracteres)')
         if not SecurityUtils.validate_person_name(nombre, max_len=100):
@@ -117,7 +120,7 @@ def registro_publico():
             raise ValidationError(msg)
 
         m = UsuariosModel()
-        data = m.registrar_usuario(usuario, nombre, clave)
+        data = m.registrar_usuario(usuario, nombre, clave, correo=correo)
         
         if data == 'existe':
             raise ValidationError('El usuario ya existe')
@@ -154,12 +157,15 @@ def registrar():
     try:
         usuario = SecurityUtils.sanitize_input(request.form.get('usuario', ''))
         nombre = SecurityUtils.sanitize_input(request.form.get('nombre', ''))
+        correo = SecurityUtils.sanitize_input(request.form.get('correo', ''))
         clave = request.form.get('clave', '')
         confirmar = request.form.get('confirmar', '')
         id_ = request.form.get('id', '')
 
         if not usuario or not nombre:
             raise ValidationError('Usuario y nombre son requeridos')
+        if correo and not SecurityUtils.validate_email(correo):
+            raise ValidationError('Ingresa un correo electrónico válido')
         if not SecurityUtils.validate_username(usuario):
             raise ValidationError('El usuario solo admite letras, numeros, guiones y guion bajo (3-20 caracteres)')
         if not SecurityUtils.validate_person_name(nombre, max_len=100):
@@ -177,7 +183,7 @@ def registrar():
             if not is_strong:
                 raise ValidationError(msg)
 
-            data = m.registrar_usuario(usuario, nombre, clave)
+            data = m.registrar_usuario(usuario, nombre, clave, correo=correo)
             msgs = {
                 'ok': ('Usuario registrado', 'success'),
                 'existe': ('El usuario ya existe', 'warning'),
@@ -187,7 +193,7 @@ def registrar():
             logger.info(f"User {usuario} registered by {session.get('usuario')}")
             return jsonify({'msg': msg, 'icono': icono})
         else:
-            data = m.modificar_usuario(usuario, nombre, id_)
+            data = m.modificar_usuario(usuario, nombre, id_, correo=correo)
             if data == 'existe':
                 return jsonify({'msg': 'El usuario ya existe', 'icono': 'warning'})
             if data == 'modificado':
@@ -499,3 +505,78 @@ def mis_prestamos():
         })
         
     return jsonify(resultado)
+
+
+@usuarios_bp.route('/solicitar_recuperacion', methods=['POST'])
+def solicitar_recuperacion():
+    try:
+        identificador = SecurityUtils.sanitize_input(request.form.get('identificador', ''))
+        if not identificador:
+            raise ValidationError('Por favor ingresa tu usuario o correo electrónico')
+            
+        m = UsuariosModel()
+        # Buscar usuario por nombre de usuario o por correo
+        user = m.select("SELECT * FROM usuarios WHERE (usuario = %s OR correo = %s) AND estado = 1 LIMIT 1", (identificador, identificador))
+        if not user:
+            raise ValidationError('El usuario o correo electrónico no está registrado o está inactivo')
+            
+        # Generar un código aleatorio de 6 dígitos
+        import random
+        code = str(random.randint(100000, 999999))
+        
+        # Guardar en la base de datos
+        m.save("UPDATE usuarios SET recovery_code = %s WHERE id = %s", (code, user['id']))
+        
+        logger.info(f"CÓDIGO DE RECUPERACIÓN GENERADO PARA {user['usuario']} ({user['correo']}): {code}")
+        
+        # Devolvemos el código en la respuesta para facilitar pruebas/desarrollo locales, además de simular envío por correo
+        return jsonify({
+            'msg': 'Código de recuperación generado con éxito. Revisa la consola o cópialo para restablecer tu clave.',
+            'icono': 'success',
+            'codigo_dev': code,
+            'usuario': user['usuario']
+        })
+    except ValidationError as e:
+        return jsonify({'msg': e.message, 'icono': 'warning'}), e.code
+    except Exception as e:
+        logger.error(f"Error in solicitar_recuperacion: {e}")
+        return jsonify({'msg': 'Error en el servidor', 'icono': 'error'}), 500
+
+
+@usuarios_bp.route('/restablecer_clave', methods=['POST'])
+def restablecer_clave():
+    try:
+        usuario = SecurityUtils.sanitize_input(request.form.get('usuario', ''))
+        codigo = SecurityUtils.sanitize_input(request.form.get('codigo', ''))
+        nueva_clave = request.form.get('nueva_clave', '')
+        confirmar = request.form.get('confirmar', '')
+        
+        if not usuario or not codigo or not nueva_clave or not confirmar:
+            raise ValidationError('Todos los campos son obligatorios')
+            
+        if nueva_clave != confirmar:
+            raise ValidationError('Las contraseñas no coinciden')
+            
+        is_strong, msg = SecurityUtils.validate_password_strength(nueva_clave)
+        if not is_strong:
+            raise ValidationError(msg)
+            
+        m = UsuariosModel()
+        user = m.select("SELECT * FROM usuarios WHERE usuario = %s AND estado = 1 LIMIT 1", (usuario,))
+        if not user:
+            raise ValidationError('Usuario no encontrado')
+            
+        if not user.get('recovery_code') or user['recovery_code'] != codigo:
+            raise ValidationError('El código de recuperación es incorrecto o ha expirado')
+            
+        # Restablecer contraseña y borrar código
+        hash_clave = SecurityUtils.hash_password(nueva_clave)
+        m.save("UPDATE usuarios SET clave = %s, recovery_code = NULL WHERE id = %s", (hash_clave, user['id']))
+        
+        logger.info(f"Contraseña restablecida con éxito para el usuario {usuario}")
+        return jsonify({'msg': 'Contraseña restablecida con éxito. Inicia sesión con tu nueva contraseña.', 'icono': 'success'})
+    except ValidationError as e:
+        return jsonify({'msg': e.message, 'icono': 'warning'}), e.code
+    except Exception as e:
+        logger.error(f"Error in restablecer_clave: {e}")
+        return jsonify({'msg': 'Error en el servidor', 'icono': 'error'}), 500

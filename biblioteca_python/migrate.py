@@ -35,6 +35,14 @@ class DatabaseMigrator:
                     'ALTER TABLE usuarios ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;',
                     'ALTER TABLE usuarios ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;',
                 ]
+            },
+            {
+                'version': '1.2',
+                'description': 'Add correo and recovery_code columns to usuarios table',
+                'sql': [
+                    'ALTER TABLE usuarios ADD COLUMN correo VARCHAR(120);',
+                    'ALTER TABLE usuarios ADD COLUMN recovery_code VARCHAR(10);',
+                ]
             }
         ]
 

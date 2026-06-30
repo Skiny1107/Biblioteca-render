@@ -50,6 +50,14 @@ ErrorHandler.register_handlers(app)
 # Setup Swagger
 setup_swagger(app)
 
+# Run database migrations on startup
+try:
+    from migrate import DatabaseMigrator
+    migrator = DatabaseMigrator()
+    migrator.run_all()
+except Exception as e:
+    logger.error(f"Error running database migrations: {e}")
+
 @app.after_request
 def normalize_dev_session_cookie(response):
     """In local HTTP development, ensure the session cookie is reusable."""

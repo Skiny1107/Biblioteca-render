@@ -130,6 +130,10 @@
                         <label>Nombre</label>
                         <input class="form-control" type="text" name="nombre" id="nombreInput" placeholder="Nombre del usuario" required minlength="3" maxlength="100" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s.'-]{3,100}">
                     </div>
+                    <div class="form-group">
+                        <label>Correo Electrónico</label>
+                        <input class="form-control" type="email" name="correo" id="correoInput" placeholder="Correo electrónico del usuario">
+                    </div>
                     <div class="row" id="claves">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -302,6 +306,7 @@
             $('#id_user').val(data.id);
             $('#usrInput').val(data.usuario);
             $('#nombreInput').val(data.nombre);
+            $('#correoInput').val(data.correo || '');
             $('#claves').hide();
             $('#claveInput, #confirmarInput').removeAttr('required').val('');
             $('#nuevo_usuario').modal('show');

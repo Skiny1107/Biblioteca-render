@@ -78,6 +78,9 @@
                     <label class="control-label">CONTRASEÑA</label>
                     <input class="form-control" type="password" placeholder="Contraseña" id="clave" name="clave" required>
                 </div>
+                <div class="form-group text-right" style="margin-top:-10px; margin-bottom:15px;">
+                    <a href="#" onclick="toggleRecuperar(event)" style="color:#cbd5e1;font-size:0.8rem;text-decoration:underline;">¿Olvidaste tu contraseña?</a>
+                </div>
                 <div class="alert alert-danger d-none" role="alert" id="alerta"></div>
                 <div class="form-group btn-container">
                     <button class="btn btn-primary btn-block" type="submit">
@@ -101,6 +104,10 @@
                     <input class="form-control" type="text" placeholder="Tu nombre completo" id="reg_nombre" name="nombre" autocomplete="name" required minlength="3" maxlength="100" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s.'-]{3,100}">
                 </div>
                 <div class="form-group">
+                    <label class="control-label">CORREO ELECTRÓNICO</label>
+                    <input class="form-control" type="email" placeholder="Tu correo electrónico" id="reg_correo" name="correo" autocomplete="email" required>
+                </div>
+                <div class="form-group">
                     <label class="control-label">CONTRASEÑA</label>
                     <input class="form-control" type="password" placeholder="Mín. 8 caracteres" id="reg_clave" name="clave" autocomplete="new-password" required>
                     <div class="pwd-strength-bar"><div class="pwd-strength-fill" id="pwdStrengthFill"></div></div>
@@ -117,6 +124,51 @@
                         <i class="fa fa-check fa-lg fa-fw"></i>Crear Cuenta
                     </button>
                     <button class="btn btn-secondary btn-block mt-2" type="button" onclick="toggleRegistro()">
+                        <i class="fa fa-arrow-left fa-lg fa-fw"></i>Volver al Login
+                    </button>
+                </div>
+            </form>
+
+            <form class="login-form d-none" id="frmRecuperar" onsubmit="solicitarRecuperacion(event);">
+                <h3 class="login-head" style="margin-bottom: 20px;"><i class="fa fa-lg fa-fw fa-unlock"></i>Recuperar Clave</h3>
+                
+                <!-- Paso 1: Ingresar Usuario/Correo -->
+                <div id="recuperar_paso1">
+                    <div class="form-group">
+                        <label class="control-label">USUARIO O CORREO</label>
+                        <input class="form-control" type="text" placeholder="Ingresa tu usuario o correo" id="rec_identificador" required>
+                        <small style="color:rgba(168,152,120,.6);font-size:.75rem;margin-top:4px;display:block;">Se enviará un código de seguridad para restablecer tu clave.</small>
+                    </div>
+                    <div class="form-group btn-container mt-4">
+                        <button class="btn btn-primary btn-block" type="submit" id="btnEnviarCodigo">
+                            <i class="fa fa-paper-plane fa-lg fa-fw"></i>Enviar Código
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Paso 2: Ingresar Código y Nueva Clave (Oculto inicialmente) -->
+                <div id="recuperar_paso2" class="d-none">
+                    <div class="form-group">
+                        <label class="control-label">CÓDIGO DE SEGURIDAD</label>
+                        <input class="form-control" type="text" placeholder="Código de 6 dígitos" id="rec_codigo" minlength="6" maxlength="6" pattern="[0-9]{6}">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">NUEVA CONTRASEÑA</label>
+                        <input class="form-control" type="password" placeholder="Mínimo 8 caracteres" id="rec_nueva_clave">
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">CONFIRMAR NUEVA CONTRASEÑA</label>
+                        <input class="form-control" type="password" placeholder="Confirma tu contraseña" id="rec_confirmar">
+                    </div>
+                    <div class="form-group btn-container mt-4">
+                        <button class="btn btn-success btn-block" type="button" onclick="restablecerClave(event);" id="btnRestablecer">
+                            <i class="fa fa-check fa-lg fa-fw"></i>Restablecer Contraseña
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group btn-container">
+                    <button class="btn btn-secondary btn-block mt-2" type="button" onclick="volverLoginDesdeRecuperar()">
                         <i class="fa fa-arrow-left fa-lg fa-fw"></i>Volver al Login
                     </button>
                 </div>
@@ -275,6 +327,107 @@
                 var err = extraerMensajeError(xhr);
                 mostrarAlerta(err.msg, err.icono);
                 $btn.prop('disabled', false).html('<i class="fa fa-check fa-lg fa-fw"></i>Crear Cuenta');
+            });
+        }
+
+        var usuarioRecuperando = '';
+
+        function toggleRecuperar(e) {
+            if (e) e.preventDefault();
+            $('#frmLogin').addClass('d-none');
+            $('#frmRegistro').addClass('d-none');
+            $('#frmRecuperar').removeClass('d-none');
+            $('#recuperar_paso1').removeClass('d-none');
+            $('#recuperar_paso2').addClass('d-none');
+            $('#rec_identificador').val('');
+            $('#rec_codigo').val('');
+            $('#rec_nueva_clave').val('');
+            $('#rec_confirmar').val('');
+            $('.login-box').css({'min-height': '350px', 'height': 'auto'});
+        }
+
+        function volverLoginDesdeRecuperar() {
+            $('#frmRecuperar').addClass('d-none');
+            $('#frmLogin').removeClass('d-none');
+            $('.login-box').css({'min-height': '390px', 'height': 'auto'});
+        }
+
+        function solicitarRecuperacion(e) {
+            e.preventDefault();
+            var identificador = $('#rec_identificador').val().trim();
+            if (!identificador) {
+                mostrarAlerta('Ingresa tu usuario o correo', 'warning');
+                return;
+            }
+            var $btn = $('#btnEnviarCodigo');
+            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enviando...');
+            
+            $.post('/Usuarios/solicitar_recuperacion', {
+                identificador: identificador
+            }, function(res) {
+                $btn.prop('disabled', false).html('<i class="fa fa-paper-plane fa-lg fa-fw"></i>Enviar Código');
+                if (res.icono === 'success') {
+                    usuarioRecuperando = res.usuario;
+                    swal({
+                        title: 'Código Generado',
+                        text: res.msg + '\n\nCÓDIGO DE PRUEBA: ' + res.codigo_dev,
+                        icon: 'success'
+                    }).then(function() {
+                        $('#recuperar_paso1').addClass('d-none');
+                        $('#recuperar_paso2').removeClass('d-none');
+                        $('.login-box').css({'min-height': '430px', 'height': 'auto'});
+                        $('#rec_codigo').focus();
+                    });
+                } else {
+                    mostrarAlerta(res.msg, res.icono);
+                }
+            }).fail(function(xhr) {
+                $btn.prop('disabled', false).html('<i class="fa fa-paper-plane fa-lg fa-fw"></i>Enviar Código');
+                var err = extraerMensajeError(xhr);
+                mostrarAlerta(err.msg, err.icono);
+            });
+        }
+
+        function restablecerClave(e) {
+            if (e) e.preventDefault();
+            var codigo = $('#rec_codigo').val().trim();
+            var nueva = $('#rec_nueva_clave').val();
+            var conf = $('#rec_confirmar').val();
+            
+            if (!codigo || !nueva || !conf) {
+                mostrarAlerta('Todos los campos son obligatorios', 'warning');
+                return;
+            }
+            if (nueva !== conf) {
+                mostrarAlerta('Las contraseñas no coinciden', 'warning');
+                return;
+            }
+            if (nueva.length < 8) {
+                mostrarAlerta('La contraseña debe tener mínimo 8 caracteres', 'warning');
+                return;
+            }
+            
+            var $btn = $('#btnRestablecer');
+            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Restableciendo...');
+            
+            $.post('/Usuarios/restablecer_clave', {
+                usuario: usuarioRecuperando,
+                codigo: codigo,
+                nueva_clave: nueva,
+                confirmar: conf
+            }, function(res) {
+                $btn.prop('disabled', false).html('<i class="fa fa-check fa-lg fa-fw"></i>Restablecer Contraseña');
+                if (res.icono === 'success') {
+                    swal(res.msg, '', 'success').then(function() {
+                        volverLoginDesdeRecuperar();
+                    });
+                } else {
+                    mostrarAlerta(res.msg, res.icono);
+                }
+            }).fail(function(xhr) {
+                $btn.prop('disabled', false).html('<i class="fa fa-check fa-lg fa-fw"></i>Restablecer Contraseña');
+                var err = extraerMensajeError(xhr);
+                mostrarAlerta(err.msg, err.icono);
             });
         }
     </script>

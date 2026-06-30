@@ -466,3 +466,37 @@ def word():
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         headers={'Content-Disposition': f'attachment; filename=reporte_{today}.docx'}
     )
+
+
+@usuarios_bp.route('/mis_prestamos')
+def mis_prestamos():
+    redir = login_required()
+    if redir:
+        return jsonify({'error': 'No autorizado'}), 401
+    
+    nombre_usuario = session.get('nombre')
+    if not nombre_usuario:
+        return jsonify([])
+        
+    from models.estudiantes_model import EstudiantesModel
+    from models.prestamos_model import PrestamosModel
+    
+    em = EstudiantesModel()
+    reg = em.select("SELECT id FROM estudiante WHERE nombre = %s LIMIT 1", (nombre_usuario,))
+    if not reg:
+        return jsonify([])
+        
+    pm = PrestamosModel()
+    prestamos = pm.get_prestamos(estudiante=reg['id'])
+    
+    resultado = []
+    for p in prestamos:
+        resultado.append({
+            'titulo': p.get('titulo', ''),
+            'fecha_prestamo': str(p.get('fecha_prestamo', '')),
+            'fecha_devolucion': str(p.get('fecha_devolucion', '')),
+            'cantidad': p.get('cantidad', 1),
+            'estado': p.get('estado', 1)
+        })
+        
+    return jsonify(resultado)

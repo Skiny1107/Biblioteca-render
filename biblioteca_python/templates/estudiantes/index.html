@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
-{% block title %}Estudiantes{% endblock %}
+{% block title %}Usuarios{% endblock %}
 {% block content %}
 <div class="app-title">
-    <div><h1><i class="fa fa-users"></i> Estudiantes</h1></div>
+    <div><h1><i class="fa fa-users"></i> Usuarios</h1></div>
     <div class="app-title-actions">
         {% if session.get('id_usuario') == 1 %}
         <button class="btn btn-primary mb-2" onclick="frmEstudiante()"><i class="fa fa-plus"></i> Nuevo</button>
@@ -48,7 +48,7 @@
 <div class="row"><div class="col-lg-12"><div class="tile"><div class="tile-body">
     <div class="table-responsive">
         <table class="table table-bordered table-hover" id="tblEstudiantes">
-            <thead class="thead-dark"><tr><th>Id</th><th>Código</th><th>DNI</th><th>Nombre</th><th>Carrera</th><th>Teléfono</th><th>Estado</th><th></th></tr></thead>
+            <thead class="thead-dark"><tr><th>Id</th><th>Código</th><th>DNI</th><th>Nombre</th><th>Carrera/Área</th><th>Teléfono</th><th>Estado</th><th></th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -57,7 +57,7 @@
 <div id="modal_est" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg"><div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title text-white" id="titleEst">Nuevo Estudiante</h5>
+            <h5 class="modal-title text-white" id="titleEst">Nuevo Usuario</h5>
             <button class="close" data-dismiss="modal"><span>&times;</span></button>
         </div>
         <div class="modal-body">
@@ -68,12 +68,12 @@
                         <input class="form-control" type="text" name="codigo" id="codigoEst" placeholder="Código"></div></div>
                     <div class="col-md-4"><div class="form-group"><label>DNI</label>
                         <input class="form-control" type="text" name="dni" id="dniEst" placeholder="DNI"></div></div>
-                    <div class="col-md-4"><div class="form-group"><label>Nombre</label>
+                    <div class="col-md-4"><div class="form-group"><label>Nombre Completo</label>
                         <input class="form-control" type="text" name="nombre" id="nombreEst" placeholder="Nombre completo"></div></div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4"><div class="form-group"><label>Carrera</label>
-                        <input class="form-control" type="text" name="carrera" placeholder="Carrera"></div></div>
+                    <div class="col-md-4"><div class="form-group"><label>Carrera/Área</label>
+                        <input class="form-control" type="text" name="carrera" placeholder="Carrera/Área"></div></div>
                     <div class="col-md-4"><div class="form-group"><label>Dirección</label>
                         <input class="form-control" type="text" name="direccion" placeholder="Dirección"></div></div>
                     <div class="col-md-4"><div class="form-group"><label>Teléfono</label>
@@ -111,7 +111,7 @@ var tableEst = $('#tblEstudiantes').DataTable({
         }}
     ]
 });
-function frmEstudiante(){ $('#titleEst').text('Nuevo Estudiante'); $('#frmEstudiante')[0].reset(); $('#id_est').val(''); $('#modal_est').modal('show'); }
+function frmEstudiante(){ $('#titleEst').text('Nuevo Usuario'); $('#frmEstudiante')[0].reset(); $('#id_est').val(''); $('#modal_est').modal('show'); }
 function registrarEst(e){
     e.preventDefault();
     if (!validarFormulario('#frmEstudiante')) return;
@@ -121,7 +121,7 @@ function registrarEst(e){
 }
 function btnEditarEst(id){
     $.get('/Estudiantes/editar/'+id, function(d){
-        $('#titleEst').text('Editar Estudiante'); $('#id_est').val(d.id); $('#codigoEst').val(d.codigo); $('#dniEst').val(d.dni); $('#nombreEst').val(d.nombre); $('#carreraEst').val(d.carrera || ''); $('#direccionEst').val(d.direccion || ''); $('#telefonoEst').val(d.telefono || ''); $('#modal_est').modal('show');
+        $('#titleEst').text('Editar Usuario'); $('#id_est').val(d.id); $('#codigoEst').val(d.codigo); $('#dniEst').val(d.dni); $('#nombreEst').val(d.nombre); $('#carreraEst').val(d.carrera || ''); $('#direccionEst').val(d.direccion || ''); $('#telefonoEst').val(d.telefono || ''); $('#modal_est').modal('show');
     });
 }
 function btnEliminarEst(id){ swal({title:'¿Dar de baja?',icon:'warning',buttons:true,dangerMode:true}).then(function(ok){ if(ok) $.get('/Estudiantes/eliminar/'+id,function(r){swal(r.msg,'',r.icono);tableEst.ajax.reload();}); }); }

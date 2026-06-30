@@ -444,25 +444,35 @@ def pdf():
     pdf_doc.cell(20, 5, datos.get('correo', ''), 0, 1, 'L')
     pdf_doc.ln()
     pdf_doc.set_font('Arial', 'B', 10)
-    pdf_doc.set_fill_color(0, 0, 0)
+    pdf_doc.set_fill_color(10, 22, 40) # Elegant deep navy blue
     pdf_doc.set_text_color(255, 255, 255)
-    pdf_doc.cell(196, 5, 'Detalle de Prestamos', 1, 1, 'C', True)
+    pdf_doc.cell(196, 6, 'Detalle de Préstamos', 1, 1, 'C', True)
+    
+    # Table headers with navy background
+    pdf_doc.set_fill_color(20, 40, 75)
+    pdf_doc.cell(14, 6, 'N', 1, 0, 'C', True)
+    pdf_doc.cell(50, 6, 'Usuarios', 1, 0, 'L', True)
+    pdf_doc.cell(72, 6, 'Libros', 1, 0, 'L', True)
+    pdf_doc.cell(30, 6, 'Fecha Préstamo', 1, 0, 'C', True)
+    pdf_doc.cell(15, 6, 'Cant.', 1, 0, 'C', True)
+    pdf_doc.cell(15, 6, 'Estado', 1, 1, 'C', True)
+    
     pdf_doc.set_text_color(0, 0, 0)
-    pdf_doc.cell(14, 5, 'N', 1, 0, 'L')
-    pdf_doc.cell(50, 5, 'Estudiantes', 1, 0, 'L')
-    pdf_doc.cell(72, 5, 'Libros', 1, 0, 'L')
-    pdf_doc.cell(30, 5, 'Fecha Prestamo', 1, 0, 'L')
-    pdf_doc.cell(15, 5, 'Cant.', 1, 0, 'L')
-    pdf_doc.cell(15, 5, 'Estado', 1, 1, 'L')
-    pdf_doc.set_font('Arial', '', 10)
+    pdf_doc.set_font('Arial', '', 9.5)
     estados_label = {0: 'Entregado', 1: 'Prestado', 2: 'Pendiente', 3: 'Rechazado'}
     for i, row in enumerate(prestamo, 1):
-        pdf_doc.cell(14, 5, str(i), 1, 0, 'L')
-        pdf_doc.cell(50, 5, row.get('est_nombre', ''), 1, 0, 'L')
-        pdf_doc.cell(72, 5, row.get('titulo', ''), 1, 0, 'L')
-        pdf_doc.cell(30, 5, str(row.get('fecha_prestamo', '')), 1, 0, 'L')
-        pdf_doc.cell(15, 5, str(row.get('cantidad', '')), 1, 0, 'L')
-        pdf_doc.cell(15, 5, estados_label.get(row.get('estado'), ''), 1, 1, 'L')
+        bg_fill = (i % 2 == 0)
+        if bg_fill:
+            pdf_doc.set_fill_color(242, 245, 248) # Light blue-grey zebra striping
+        else:
+            pdf_doc.set_fill_color(255, 255, 255)
+            
+        pdf_doc.cell(14, 6, str(i), 1, 0, 'C', True)
+        pdf_doc.cell(50, 6, str(row.get('est_nombre', '')), 1, 0, 'L', True)
+        pdf_doc.cell(72, 6, str(row.get('titulo', '')), 1, 0, 'L', True)
+        pdf_doc.cell(30, 6, str(row.get('fecha_prestamo', '')), 1, 0, 'C', True)
+        pdf_doc.cell(15, 6, str(row.get('cantidad', '')), 1, 0, 'C', True)
+        pdf_doc.cell(15, 6, estados_label.get(row.get('estado'), ''), 1, 1, 'C', True)
     pdf_bytes = bytes(pdf_doc.output())
     return Response(pdf_bytes, mimetype='application/pdf',
                     headers={'Content-Disposition': 'inline; filename=prestamos.pdf'})

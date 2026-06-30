@@ -37,7 +37,7 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Estudiante</label>
+                                <label>Usuario</label>
                                 <select class="form-control" id="filtroPrestEstudiante" style="width: 100%;"></select>
                             </div>
                         </div>
@@ -73,7 +73,7 @@
     <div class="table-responsive">
         <table class="table table-bordered table-hover" id="tblPrestamos">
             <thead class="thead-dark">
-                <tr><th>Id</th><th>Estudiante</th><th>Libro</th><th>F. Préstamo</th><th>F. Devolución</th><th>Cant.</th><th>Estado</th><th></th></tr>
+                <tr><th>Id</th><th>Usuario</th><th>Libro</th><th>F. Préstamo</th><th>F. Devolución</th><th>Cant.</th><th>Estado</th><th></th></tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -92,7 +92,7 @@
                     <div class="row">
                         {% if session['id_usuario'] == 1 %}
                         <div class="col-md-6">
-                            <div class="form-group"><label>Estudiante</label>
+                            <div class="form-group"><label>Usuario</label>
                                 <select class="form-control estudiante" name="estudiante" id="estSelect" style="width: 100%;"></select>
                             </div>
                         </div>
@@ -195,7 +195,7 @@ var tablePrestamos = $('#tblPrestamos').DataTable({
 });
 
 // Initialize Select2 for filters
-$('#filtroPrestEstudiante').select2({ ajax:{ url:'/Estudiantes/buscarEstudiante', data:function(p){ return {es:p.term}; }, processResults:function(d){ return {results:d}; } }, placeholder: 'Buscar estudiante...', allowClear: true });
+$('#filtroPrestEstudiante').select2({ ajax:{ url:'/Estudiantes/buscarEstudiante', data:function(p){ return {es:p.term}; }, processResults:function(d){ return {results:d}; } }, placeholder: 'Buscar usuario...', allowClear: true });
 $('#filtroPrestLibro').select2({ ajax:{ url:'/Libros/buscarLibro', data:function(p){ return {lb:p.term}; }, processResults:function(d){ return {results:d}; } }, placeholder: 'Buscar libro...', allowClear: true });
 
 function frmPrestamo() {

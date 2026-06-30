@@ -83,7 +83,7 @@
                     <i class="fa fa-user fa-lg"></i>
                 </a>
                 <ul class="dropdown-menu settings-menu dropdown-menu-right">
-                    <li><a class="dropdown-item" href="#" id="modalPass"><i class="fa fa-user fa-lg"></i> Perfil</a></li>
+                    <li><a class="dropdown-item" href="#" id="btnVerPerfil"><i class="fa fa-user fa-lg"></i> Perfil</a></li>
                     <li><a class="dropdown-item" href="{{ url_for('usuarios.salir') }}"><i class="fa fa-sign-out fa-lg"></i> Salir</a></li>
                 </ul>
             </li>
@@ -136,7 +136,7 @@
             {% if 'Estudiantes' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
             <li><a class="app-menu__item" href="{{ url_for('estudiantes.index') }}">
                 <i class="app-menu__icon fa fa-users"></i>
-                <span class="app-menu__label">Estudiantes</span></a></li>
+                <span class="app-menu__label">Usuarios</span></a></li>
             {% endif %}
 
             {% if 'Usuarios' in session.get('permisos', []) or 'Configuracion' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
@@ -148,7 +148,7 @@
                 </a>
                 <ul class="treeview-menu">
                     {% if 'Usuarios' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
-                    <li><a class="treeview-item" href="{{ url_for('usuarios.index') }}"><i class="icon fa fa-user-o"></i> Usuarios</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('usuarios.index') }}"><i class="icon fa fa-user-o"></i> Usuarios del Sistema</a></li>
                     {% endif %}
                     {% if 'Configuracion' in session.get('permisos', []) or session.get('id_usuario')|int == 1 %}
                     <li><a class="treeview-item" href="{{ url_for('configuracion.index') }}"><i class="icon fa fa-cogs"></i> Configuración</a></li>
@@ -166,7 +166,24 @@
                 </a>
                 <ul class="treeview-menu">
                     <li><a class="treeview-item" href="{{ url_for('prestamos.pdf') }}" target="_blank">
-                        <i class="icon fa fa-file-pdf-o"></i> Libros Prestados</a></li>
+                        <i class="icon fa fa-file-pdf-o"></i> Préstamos (PDF)</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('prestamos.excel') }}">
+                        <i class="icon fa fa-file-excel-o"></i> Préstamos (Excel)</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('prestamos.word') }}">
+                        <i class="icon fa fa-file-word-o"></i> Préstamos (Word)</a></li>
+                    <li style="border-top: 1px solid rgba(255,255,255,0.1); margin: 4px 0;"></li>
+                    <li><a class="treeview-item" href="{{ url_for('libros.pdf') }}" target="_blank">
+                        <i class="icon fa fa-book"></i> Listado de Libros</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('autor.pdf') }}" target="_blank">
+                        <i class="icon fa fa-address-book"></i> Listado de Autores</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('editorial.pdf') }}" target="_blank">
+                        <i class="icon fa fa-building"></i> Listado de Editoriales</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('materia.pdf') }}" target="_blank">
+                        <i class="icon fa fa-tags"></i> Listado de Categorías</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('estudiantes.pdf') }}" target="_blank">
+                        <i class="icon fa fa-users"></i> Listado de Usuarios</a></li>
+                    <li><a class="treeview-item" href="{{ url_for('usuarios.pdf') }}" target="_blank">
+                        <i class="icon fa fa-user-circle-o"></i> Listado de Administradores</a></li>
                 </ul>
             </li>
             {% endif %}
@@ -184,6 +201,72 @@
     </main>
 
     <!-- Footer / Modals -->
+    <!-- Modal Perfil -->
+    <div class="modal fade" id="modalPerfil" tabindex="-1" role="dialog" aria-labelledby="perfilModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="perfilModalLabel"><i class="fa fa-user-circle-o"></i> Mi Perfil</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Datos del Usuario -->
+                        <div class="col-md-4 text-center border-right">
+                            <div class="profile-avatar mb-3 mt-2">
+                                <i class="fa fa-user-circle fa-5x text-secondary"></i>
+                            </div>
+                            <h4 class="font-weight-bold" id="perfil_nombre">{{ session.get('nombre', '') }}</h4>
+                            <p class="text-muted" id="perfil_rol">{{ (session.get('rol') or 'Usuario')|capitalize }}</p>
+                            <p class="text-muted" style="font-size: 0.9rem;"><strong>Usuario:</strong> {{ session.get('usuario', '') }}</p>
+                            
+                            <hr>
+                            
+                            <button class="btn btn-outline-primary btn-block btn-sm mb-2" id="btnShowCambiarPass">
+                                <i class="fa fa-key"></i> Cambiar Contraseña
+                            </button>
+
+                            <!-- Botón de acceso a admin (Solo si tiene todos los permisos o es id_usuario == 1) -->
+                            {% if session.get('id_usuario')|int == 1 or session.get('permisos')|length >= 9 %}
+                            <a href="{{ url_for('configuracion.admin') }}" class="btn btn-success btn-block btn-sm mt-2" style="font-weight:700;">
+                                <i class="fa fa-cogs"></i> Panel Administrativo
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Libros Prestados / Solicitados -->
+                        <div class="col-md-8">
+                            <h5 class="border-bottom pb-2 mt-2"><i class="fa fa-book"></i> Mis Libros Solicitados</h5>
+                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                <table class="table table-hover table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Libro</th>
+                                            <th>F. Préstamo</th>
+                                            <th>F. Devolución</th>
+                                            <th>Cant.</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyMisPrestamos">
+                                        <tr>
+                                            <td colspan="5" class="text-center">Cargando préstamos...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal cambiar contraseña -->
     <div class="modal fade" id="modalCambiarPass" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
@@ -375,9 +458,56 @@
         setInterval(cargarNotificaciones, 30000);
         
         // Abrir modal perfil
-        $('#modalPass').click(function() {
+        $('#btnVerPerfil').click(function(e) {
+            e.preventDefault();
+            $('#modalPerfil').modal('show');
+            cargarMisPrestamos();
+        });
+
+        $('#btnShowCambiarPass').click(function(e) {
+            e.preventDefault();
+            $('#modalPerfil').modal('hide');
             $('#modalCambiarPass').modal('show');
         });
+
+        function cargarMisPrestamos() {
+            $('#tbodyMisPrestamos').html('<tr><td colspan="5" class="text-center"><i class="fa fa-spinner fa-spin"></i> Cargando...</td></tr>');
+            $.get('/Usuarios/mis_prestamos', function(data) {
+                let html = '';
+                if (data.length === 0) {
+                    html = '<tr><td colspan="5" class="text-center text-muted">No tienes libros prestados o solicitados.</td></tr>';
+                } else {
+                    data.forEach(function(item) {
+                        let badgeClass = 'badge-secondary';
+                        let estadoTxt = 'Desconocido';
+                        if (item.estado === 0) {
+                            badgeClass = 'badge-success';
+                            estadoTxt = 'Devuelto';
+                        } else if (item.estado === 1) {
+                            badgeClass = 'badge-info';
+                            estadoTxt = 'Activo';
+                        } else if (item.estado === 2) {
+                            badgeClass = 'badge-warning';
+                            estadoTxt = 'Pendiente';
+                        } else if (item.estado === 3) {
+                            badgeClass = 'badge-danger';
+                            estadoTxt = 'Rechazado';
+                        }
+                        
+                        html += '<tr>' +
+                            '<td>' + item.titulo + '</td>' +
+                            '<td>' + item.fecha_prestamo + '</td>' +
+                            '<td>' + item.fecha_devolucion + '</td>' +
+                            '<td>' + item.cantidad + '</td>' +
+                            '<td><span class="badge ' + badgeClass + '">' + estadoTxt + '</span></td>' +
+                            '</tr>';
+                    });
+                }
+                $('#tbodyMisPrestamos').html(html);
+            }).fail(function() {
+                $('#tbodyMisPrestamos').html('<tr><td colspan="5" class="text-center text-danger">Error al cargar historial.</td></tr>');
+            });
+        }
         function cambiarPass(e) {
             e.preventDefault();
             const actual = $('#clave_actual').val();

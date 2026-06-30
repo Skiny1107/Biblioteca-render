@@ -351,8 +351,8 @@ def salir():
 @usuarios_bp.route('/pdf')
 @permission_required('Reportes')
 def pdf():
-    redir = login_required()
-    if redir: return redir
+    if not session.get('activo'):
+        return redirect(url_for('login'))
     from fpdf import FPDF
     from flask import Response
     m = UsuariosModel()
@@ -388,8 +388,8 @@ def pdf():
 @usuarios_bp.route('/excel')
 @permission_required('Reportes')
 def excel():
-    redir = login_required()
-    if redir: return redir
+    if not session.get('activo'):
+        return redirect(url_for('login'))
     from io import BytesIO
     from datetime import date
     import openpyxl
@@ -429,8 +429,8 @@ def excel():
 @usuarios_bp.route('/word')
 @permission_required('Reportes')
 def word():
-    redir = login_required()
-    if redir: return redir
+    if not session.get('activo'):
+        return redirect(url_for('login'))
     from io import BytesIO
     from datetime import date
     from docx import Document
@@ -470,8 +470,7 @@ def word():
 
 @usuarios_bp.route('/mis_prestamos')
 def mis_prestamos():
-    redir = login_required()
-    if redir:
+    if not session.get('activo'):
         return jsonify({'error': 'No autorizado'}), 401
     
     nombre_usuario = session.get('nombre')
